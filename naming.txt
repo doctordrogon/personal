@@ -1,0 +1,8 @@
+engine type, model name, revision
+
+ex.
+v8_a_r1
+
+v8 engine, model a, revision 1
+
+figure out math to find firing order of the ls v12
