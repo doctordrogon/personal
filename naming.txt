@@ -1,8 +1,41 @@
-engine type, model name, revision
+File naming scheme:
+Brand, engine type, model name, revision number, purpose
 
-ex.
-v8_a_r1
 
-v8 engine, model a, revision 1
+Brand- only used if not made by made
 
-figure out math to find firing order of the ls v12
+Engine type- type of engine followed by cylinder count
+(v, f, b, i, ra, ro)
+(v, flat, boxer, inline, radial, rotary)
+
+Model name- model name of the engine, default to "Model A" if there is no model name
+
+Revision number- revision number engine is on
+
+Purpose- can be used to specify the purpose of the engine
+(experimentation, racing, economy)
+
+examples:
+
+v8_a_1
+
+made by me, v8 engine, Model A, revision 1
+
+
+GM_v8_LS1_1_racing
+
+made by gm, v8 engine, LS1, revision 1, built for racing
+
+
+Subaru_f4_ej25_1_unequalheaders
+
+made by subaru, flat 4 engine, ej25, revision 1, has unequal length headers
+
+
+v12_modifiedLS_r3_experimentation
+
+made by me, v12 engine, modified LS, revision 3, built for experimentation
+
+
+______________________________________________
+Will probably change to markdown in the future

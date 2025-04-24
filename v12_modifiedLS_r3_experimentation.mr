@@ -115,31 +115,31 @@ private node modifiedLS_v12_camshaft {
     // st = spark plug timing needs work
     // nw = needs work
     _exhaust_cam_0
-        .add_lobe(rot360 - exhaust_lobe_center + 0 * 120 * units.deg)      // 1  tg
-        .add_lobe(rot360 - exhaust_lobe_center + 4 * 120 * units.deg)      // 3  tg
-        .add_lobe(rot360 - exhaust_lobe_center + 2 * 120 * units.deg)      // 5  tg
+        .add_lobe(rot360 - exhaust_lobe_center + (0*120) * units.deg)      // 1  tg
+        .add_lobe(rot360 - exhaust_lobe_center + (4*120) * units.deg)      // 3  tg
+        .add_lobe(rot360 - exhaust_lobe_center + (2*120) * units.deg)      // 5  tg
         .add_lobe(rot360 - exhaust_lobe_center + (5*120) + 90 * units.deg) // 7  tg
         .add_lobe(rot360 - exhaust_lobe_center + (2*120) + 45 * units.deg) // 9  tg
         .add_lobe(rot360 - exhaust_lobe_center + (7*120) + 90 * units.deg) // 11 st
     _intake_cam_0
-        .add_lobe(rot360 + intake_lobe_center + 0 * 120 * units.deg)       // 1  tg
-        .add_lobe(rot360 + intake_lobe_center + 4 * 120 * units.deg)       // 3  tg
-        .add_lobe(rot360 + intake_lobe_center + 2 * 120 * units.deg)       // 5  tg
+        .add_lobe(rot360 + intake_lobe_center + (0*120) * units.deg)       // 1  tg
+        .add_lobe(rot360 + intake_lobe_center + (4*120) * units.deg)       // 3  tg
+        .add_lobe(rot360 + intake_lobe_center + (2*120) * units.deg)       // 5  tg
         .add_lobe(rot360 + intake_lobe_center + (5*120) + 90 * units.deg)  // 7  tg
         .add_lobe(rot360 + intake_lobe_center + (2*120) + 45 * units.deg)  // 9  tg
         .add_lobe(rot360 + intake_lobe_center + (7*120) + 90 * units.deg)  // 11 st
 
     _exhaust_cam_1
-        .add_lobe(rot360 - exhaust_lobe_center + 240 * units.deg)          // 2  st
-        .add_lobe(rot360 - exhaust_lobe_center + 6 * 120 * units.deg)      // 4  st
-        .add_lobe(rot360 - exhaust_lobe_center + 1 * 120 * units.deg)      // 6  st
+        .add_lobe(rot360 - exhaust_lobe_center + (2*120) * units.deg)      // 2  st
+        .add_lobe(rot360 - exhaust_lobe_center + (6*120) * units.deg)      // 4  st
+        .add_lobe(rot360 - exhaust_lobe_center + (1*120) * units.deg)      // 6  st
         .add_lobe(rot360 - exhaust_lobe_center + (2*120) + 90 * units.deg) // 8  tg
         .add_lobe(rot360 - exhaust_lobe_center + (8*120) + 90 * units.deg) // 10 st
         .add_lobe(rot360 - exhaust_lobe_center + (5*120) + 90 * units.deg) // 12 st
     _intake_cam_1
-        .add_lobe(rot360 + intake_lobe_center + 240 * units.deg)           // 2  st
-        .add_lobe(rot360 + intake_lobe_center + 6 * 120 * units.deg)       // 4  st
-        .add_lobe(rot360 + intake_lobe_center + 1 * 120 * units.deg)       // 6  st
+        .add_lobe(rot360 + intake_lobe_center + (2*120) * units.deg)       // 2  st
+        .add_lobe(rot360 + intake_lobe_center + (6*120) * units.deg)       // 4  st
+        .add_lobe(rot360 + intake_lobe_center + (1*120) * units.deg)       // 6  st
         .add_lobe(rot360 + intake_lobe_center + (2*120) + 90 * units.deg)  // 8  tg
         .add_lobe(rot360 + intake_lobe_center + (8*120) + 90 * units.deg)  // 10 st
         .add_lobe(rot360 + intake_lobe_center + (5*120) + 90 * units.deg)  // 12 st
@@ -521,7 +521,7 @@ public node ls_v8_replica {
 
     engine.add_ignition_module(ignition_module)
 /* 
-note: firing order WILL get changed to something more efficient
+    TODO: firing order be calculated to something more optimal
 */
 }
 
@@ -556,9 +556,9 @@ private node corvette_transmission {
         .add_gear(2.97)
         .add_gear(2.07)
         .add_gear(1.43)
-        .add_gear(1.30)
-        .add_gear(1.10)
-        .add_gear(1.00);
+        .add_gear(1.20)
+        .add_gear(1.00)
+        .add_gear(0.90);
 }
 
 public node main {
