@@ -169,7 +169,7 @@ public node ls_v8_replica {
         starter_torque: 400 * units.lb_ft,
         starter_speed: 400 * units.rpm,
 
-        redline: 7500 * units.rpm,
+        redline: 8500 * units.rpm,
         // also change at rev_limit
 
         throttle_gamma: 2.0,
@@ -209,7 +209,6 @@ public node ls_v8_replica {
     label flywheel_radius(8 * units.inch)
     // todo: explanation here of how this impacts hp
 
-    // probably shouldn't mess with this
     label crank_moment(
         1.5 * disk_moment_of_inertia(mass: crank_mass, radius: stroke)
     )
@@ -293,6 +292,7 @@ public node ls_v8_replica {
         idle_flow_rate: k_carb(0.0),
         idle_throttle_plate_position: 0.993,
         // adjust idle speed (lower = higher idle)
+
         velocity_decay: 0.5
     )
 
@@ -513,7 +513,7 @@ public node ls_v8_replica {
 
     ignition_module ignition_module(
         timing_curve: timing_curve,
-        rev_limit: 7600 * units.rpm,
+        rev_limit: 8600 * units.rpm,
         limiter_duration: 0.07)
 
     ignition_module

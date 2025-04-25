@@ -421,11 +421,12 @@ private node integra_type_r_transmission {
         transmission(
             max_clutch_torque: 300 * units.lb_ft
         )
-        .add_gear(3.23)
+        .add_gear(3.230)
         .add_gear(2.105)
         .add_gear(1.458)
         .add_gear(1.107)
-        .add_gear(0.848);
+        .add_gear(0.848)
+        .add_gear(0.700);
 }
 
 public node main {

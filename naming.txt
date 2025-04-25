@@ -5,8 +5,8 @@ Brand, engine type, model name, revision number, purpose
 Brand- only used if not made by made
 
 Engine type- type of engine followed by cylinder count
-(v, f, b, i, ra, ro)
-(v, flat, boxer, inline, radial, rotary)
+(v, w, f, b, i, ra, ro)
+(v, w, flat, boxer, inline, radial, rotary)
 
 Model name- model name of the engine, default to "Model A" if there is no model name
 
