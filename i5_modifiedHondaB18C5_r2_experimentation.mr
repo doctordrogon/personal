@@ -153,9 +153,9 @@ public node honda_vtec_i4 {
 
     engine engine(
         name: "honda b18c5 + 1 cylinder",
-        starter_torque: 200 * units.lb_ft,
+        starter_torque: 250 * units.lb_ft,
         starter_speed:  500 * units.rpm,
-        redline: 8400 * units.rpm,
+        redline: 8600 * units.rpm,
         // rev_limit
         fuel: fuel(
             max_turbulence_effect: 2.5,
@@ -216,8 +216,8 @@ public node honda_vtec_i4 {
     intake intake(
         plenum_volume: 1.325 * units.L,
         plenum_cross_section_area: 20.0 * units.cm2,
-        intake_flow_rate: k_carb(800.0),
-        runner_flow_rate: k_carb(250.0),
+        intake_flow_rate: k_carb(900.0),
+        runner_flow_rate: k_carb(275.0),
         runner_length: 7.0 * units.inch,
         idle_flow_rate: k_carb(0.0),
         idle_throttle_plate_position: 0.9989,
@@ -362,7 +362,7 @@ public node honda_vtec_i4 {
 
     ignition_module ignition_module(
         timing_curve: timing_curve,
-        rev_limit: 8500 * units.rpm, //43244374
+        rev_limit: 8600 * units.rpm, //43244374
         limiter_duration: 0.05)
     
     ignition_module
@@ -400,11 +400,12 @@ private node integra_type_r_transmission {
         transmission(
             max_clutch_torque: 300 * units.lb_ft
         )
-        .add_gear(3.23)
-        .add_gear(2.105)
-        .add_gear(1.458)
-        .add_gear(1.107)
-        .add_gear(0.848);
+        .add_gear(3.000)
+        .add_gear(2.000)
+        .add_gear(1.500)
+        .add_gear(1.200)
+        .add_gear(0.900)
+        .add_gear(0.700);
 }
 
 public node main {
