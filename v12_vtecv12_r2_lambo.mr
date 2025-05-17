@@ -1,0 +1,676 @@
+import "engine_sim.mr"
+
+units units()
+constants constants()
+impulse_response_library ir_lib()
+label cycle(2 * 360 * units.deg)
+
+private node wires {
+    output wire1: ignition_wire();
+    output wire2: ignition_wire();
+    output wire3: ignition_wire();
+    output wire4: ignition_wire();
+    output wire5: ignition_wire();
+    output wire6: ignition_wire();
+    output wire7: ignition_wire();
+    output wire8: ignition_wire();
+    output wire9: ignition_wire();
+    output wire10: ignition_wire();
+    output wire11: ignition_wire();
+    output wire12: ignition_wire();
+}
+
+private node honda_vtec_head {
+    input intake_camshaft;
+    input exhaust_camshaft;
+    input vtec_intake_camshaft;
+    input vtec_exhaust_camshaft;
+    input chamber_volume: 41.632 * units.cc;
+    input intake_runner_volume: 141 * units.cc;
+
+    input intake_runner_cross_section_area: 1.15 * units.inch * 1.15 * units.inch;
+    // http://www.wallaceracing.com/runnertorquecalc.php
+
+    input exhaust_runner_volume: 50.0 * units.cc;
+    input exhaust_runner_cross_section_area: 1.15 * units.inch * 1.15 * units.inch;
+    /*thes DEFINITELY affects how well the engine runs*/
+
+
+
+    input flow_attenuation: 1.0;
+    input lift_scale: 1.0;
+    input flip_display: false;
+    alias output __out: head;
+
+    function intake_flow(50 * units.thou) // 1 thou = .0001 in
+    intake_flow
+        .add_flow_sample(0   * lift_scale, 0   * flow_attenuation)
+        .add_flow_sample(50  * lift_scale, 50  * flow_attenuation)
+        .add_flow_sample(100 * lift_scale, 80  * flow_attenuation)
+        .add_flow_sample(150 * lift_scale, 125 * flow_attenuation)
+        .add_flow_sample(200 * lift_scale, 160 * flow_attenuation)
+        .add_flow_sample(250 * lift_scale, 190 * flow_attenuation)
+        .add_flow_sample(300 * lift_scale, 210 * flow_attenuation)
+        .add_flow_sample(350 * lift_scale, 225 * flow_attenuation)
+        .add_flow_sample(400 * lift_scale, 230 * flow_attenuation)
+        .add_flow_sample(450 * lift_scale, 250 * flow_attenuation)
+
+    function exhaust_flow(50 * units.thou)
+    exhaust_flow
+        .add_flow_sample(0 *   lift_scale, 0   * flow_attenuation)
+        .add_flow_sample(50 *  lift_scale, 50  * flow_attenuation)
+        .add_flow_sample(100 * lift_scale, 80  * flow_attenuation)
+        .add_flow_sample(150 * lift_scale, 110 * flow_attenuation)
+        .add_flow_sample(200 * lift_scale, 130 * flow_attenuation)
+        .add_flow_sample(250 * lift_scale, 150 * flow_attenuation)
+        .add_flow_sample(300 * lift_scale, 160 * flow_attenuation)
+        .add_flow_sample(350 * lift_scale, 170 * flow_attenuation)
+        .add_flow_sample(400 * lift_scale, 170 * flow_attenuation)
+        .add_flow_sample(450 * lift_scale, 170 * flow_attenuation)
+
+/*
+// function intake_flow(1 * units.mm)
+    // intake_flow
+    //     .add_flow_sample(0 * lift_scale, 0 * flow_attenuation)
+    //     .add_flow_sample(1 * lift_scale, 35 * flow_attenuation)
+    //     .add_flow_sample(2 * lift_scale, 60 * flow_attenuation)
+    //     .add_flow_sample(3 * lift_scale, 90 * flow_attenuation)
+    //     .add_flow_sample(4 * lift_scale, 125 * flow_attenuation)
+    //     .add_flow_sample(5 * lift_scale, 150 * flow_attenuation)
+    //     .add_flow_sample(6 * lift_scale, 175 * flow_attenuation)
+    //     .add_flow_sample(7 * lift_scale, 200 * flow_attenuation)
+    //     .add_flow_sample(8 * lift_scale, 215 * flow_attenuation)
+    //     .add_flow_sample(9 * lift_scale, 230 * flow_attenuation)
+    //     .add_flow_sample(10 * lift_scale, 280 * flow_attenuation)
+    //     .add_flow_sample(11 * lift_scale, 300 * flow_attenuation)
+    //     .add_flow_sample(12 * lift_scale, 345 * flow_attenuation)
+
+    // function exhaust_flow(1 * units.mm)
+    // exhaust_flow
+    //     .add_flow_sample(0 * lift_scale, 0 * flow_attenuation)
+    //     .add_flow_sample(1 * lift_scale, 35 * flow_attenuation)
+    //     .add_flow_sample(2 * lift_scale, 55 * flow_attenuation)
+    //     .add_flow_sample(3 * lift_scale, 85 * flow_attenuation)
+    //     .add_flow_sample(4 * lift_scale, 105 * flow_attenuation)
+    //     .add_flow_sample(5 * lift_scale, 120 * flow_attenuation)
+    //     .add_flow_sample(6 * lift_scale, 140 * flow_attenuation)
+    //     .add_flow_sample(7 * lift_scale, 150 * flow_attenuation)
+    //     .add_flow_sample(8 * lift_scale, 155 * flow_attenuation)
+    //     .add_flow_sample(9 * lift_scale, 160 * flow_attenuation)
+    //     .add_flow_sample(10 * lift_scale, 200 * flow_attenuation)
+    //     .add_flow_sample(11 * lift_scale, 210 * flow_attenuation)
+    //     .add_flow_sample(12 * lift_scale, 215 * flow_attenuation)
+    */
+    
+
+    generic_cylinder_head head(
+        chamber_volume: chamber_volume,
+        intake_runner_volume: intake_runner_volume,
+        intake_runner_cross_section_area: intake_runner_cross_section_area,
+        exhaust_runner_volume: exhaust_runner_volume,
+        exhaust_runner_cross_section_area: exhaust_runner_cross_section_area,
+
+        intake_port_flow: intake_flow,
+        exhaust_port_flow: exhaust_flow,
+
+        valvetrain: vtec_valvetrain(
+            vtec_intake_camshaft: vtec_intake_camshaft,
+            vtec_exhaust_camshaft: vtec_exhaust_camshaft,
+            intake_camshaft: intake_camshaft,
+            exhaust_camshaft: exhaust_camshaft
+        ),
+        flip_display: flip_display
+    )
+}
+
+private node honda_vtec_camshaft {
+    input lobe_profile;
+    input intake_lobe_profile: lobe_profile;
+    input exhaust_lobe_profile: lobe_profile;
+
+    input vtec_lobe_profile;
+    input vtec_intake_lobe_profile: vtec_lobe_profile;
+    input vtec_exhaust_lobe_profile: vtec_lobe_profile;
+
+    input lobe_separation: 130 * units.deg;
+    input intake_lobe_center: lobe_separation;
+    input exhaust_lobe_center: lobe_separation;
+    input vtec_lobe_separation: 126 * units.deg;
+    input vtec_intake_lobe_center: vtec_lobe_separation;
+    input vtec_exhaust_lobe_center: vtec_lobe_separation;   
+    input advance: -16.5 * units.deg; 
+    input base_radius: 1.0 * units.inch;
+
+    output intake_cam_1: _intake_cam_1;
+    output intake_cam_2: _intake_cam_2;
+
+    output exhaust_cam_1: _exhaust_cam_1;
+    output exhaust_cam_2: _exhaust_cam_2;
+
+    output vtec_intake_cam_1: _vtec_intake_cam_1;
+    output vtec_intake_cam_2: _vtec_intake_cam_2;
+
+    output vtec_exhaust_cam_1: _vtec_exhaust_cam_1;
+    output vtec_exhaust_cam_2: _vtec_exhaust_cam_2;
+
+    camshaft_parameters params (
+        advance: advance,
+        base_radius: base_radius
+    )
+
+
+    camshaft _intake_cam_1(params, lobe_profile: intake_lobe_profile)
+    camshaft _intake_cam_2(params, lobe_profile: intake_lobe_profile)
+
+    camshaft _exhaust_cam_1(params, lobe_profile: exhaust_lobe_profile)
+    camshaft _exhaust_cam_2(params, lobe_profile: exhaust_lobe_profile)
+
+    camshaft _vtec_intake_cam_1(params, lobe_profile: vtec_intake_lobe_profile)
+    camshaft _vtec_intake_cam_2(params, lobe_profile: vtec_intake_lobe_profile)
+
+    camshaft _vtec_exhaust_cam_1(params, lobe_profile: vtec_exhaust_lobe_profile)
+    camshaft _vtec_exhaust_cam_2(params, lobe_profile: vtec_exhaust_lobe_profile)
+
+    label rot180(180 * units.deg)
+    label rot360(360 * units.deg)
+
+
+// valves
+// early = subtract
+// late  = add
+
+ label cyl1(5  * 60)      // good
+ label cyl2(0  * 60)      // good
+ label cyl3(-3 * 60)      // tdc
+ label cyl4(4  * 60)      // tdc
+ label cyl5(2  * 60)      // tdc
+ label cyl6(2  * 60)      // tdc
+ label cyl7(7  * 60 + 30) // tdc
+ label cyl8(8 * 60)       // tdc
+ label cyl9(3  * 60)      // tdc
+label cyl10(10  * 60)     // tdc
+label cyl11(-1  * 60)     // good
+label cyl12(-6  * 60)     // good
+
+/*****************************************************************************/
+
+    _exhaust_cam_1
+        .add_lobe(rot360 - exhaust_lobe_center - cyl2 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center - cyl4 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center - cyl6 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center - cyl8 * units.deg)
+       .add_lobe(rot360 - exhaust_lobe_center - cyl10 * units.deg)
+       .add_lobe(rot360 - exhaust_lobe_center - cyl12 * units.deg)
+
+    _vtec_exhaust_cam_1
+        .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl2 * units.deg) 
+        .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl4 * units.deg) 
+        .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl6 * units.deg) 
+        .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl8 * units.deg) 
+       .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl10 * units.deg)
+       .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl12 * units.deg)
+
+/*****************************************************************************/
+
+    _intake_cam_1
+        .add_lobe(rot360 + intake_lobe_center - cyl2 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center - cyl4 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center - cyl6 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center - cyl8 * units.deg)
+       .add_lobe(rot360 + intake_lobe_center - cyl10 * units.deg)
+       .add_lobe(rot360 + intake_lobe_center - cyl12 * units.deg)
+
+    _vtec_intake_cam_1
+        .add_lobe(rot360 + vtec_intake_lobe_center -  cyl2 * units.deg)
+        .add_lobe(rot360 + vtec_intake_lobe_center -  cyl4 * units.deg)
+        .add_lobe(rot360 + vtec_intake_lobe_center -  cyl6 * units.deg)
+        .add_lobe(rot360 + vtec_intake_lobe_center -  cyl8 * units.deg)
+       .add_lobe(rot360 + vtec_intake_lobe_center -  cyl10 * units.deg)
+       .add_lobe(rot360 + vtec_intake_lobe_center -  cyl12 * units.deg)
+
+/*****************************************************************************/
+/*****************************************************************************/
+
+    _exhaust_cam_2
+        .add_lobe(rot360 - exhaust_lobe_center - cyl1 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center - cyl3 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center - cyl5 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center - cyl7 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center - cyl9 * units.deg)
+       .add_lobe(rot360 - exhaust_lobe_center - cyl11 * units.deg)
+
+    _vtec_exhaust_cam_2
+        .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl1 * units.deg) 
+        .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl3 * units.deg) 
+        .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl5 * units.deg) 
+        .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl7 * units.deg) 
+        .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl9 * units.deg)
+       .add_lobe(rot360 - vtec_exhaust_lobe_center - cyl11 * units.deg) 
+
+/*****************************************************************************/
+
+    _intake_cam_2
+        .add_lobe(rot360 + intake_lobe_center - cyl1 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center - cyl3 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center - cyl5 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center - cyl7 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center - cyl9 * units.deg)
+       .add_lobe(rot360 + intake_lobe_center - cyl11 * units.deg)
+
+    _vtec_intake_cam_2
+        .add_lobe(rot360 + vtec_intake_lobe_center -  cyl1 * units.deg)
+        .add_lobe(rot360 + vtec_intake_lobe_center -  cyl3 * units.deg)
+        .add_lobe(rot360 + vtec_intake_lobe_center -  cyl5 * units.deg)
+        .add_lobe(rot360 + vtec_intake_lobe_center -  cyl7 * units.deg)
+        .add_lobe(rot360 + vtec_intake_lobe_center -  cyl9 * units.deg)
+       .add_lobe(rot360 + vtec_intake_lobe_center -  cyl11 * units.deg)
+
+/*****************************************************************************/
+}
+
+label rev(8700)
+
+public node lambo_vtec_v12 {
+    alias output __out: engine;
+
+    engine engine(
+        name: "vtec v12",
+        starter_torque: 250 * units.lb_ft,
+        starter_speed:  1500 * units.rpm,
+        redline: rev * units.rpm,
+        fuel: fuel(
+            max_turbulence_effect: 4,
+            max_burning_efficiency: 0.75
+        ),
+        throttle_gamma: 2.0,
+        hf_gain: 0.002,
+        noise: 0.253,
+        jitter: 0.195,
+        simulation_frequency: 9000
+    )
+
+    wires wires()
+
+    // lambo svj stroke and bore
+    label stroke(3.01 * units.inch)
+    label bore(3.74 * units.inch)
+
+    label rod_length(130 * units.mm)
+    // higher = flattens out top end power and more hp
+
+    label rod_mass(50 * units.g)
+    label compression_height(39.8 * units.mm)
+    label crank_mass(8 * units.kg)
+    label flywheel_mass(30 * units.lb)
+    label flywheel_radius(6.5 * units.inch)
+
+    label crank_moment(
+        disk_moment_of_inertia(mass: crank_mass, radius: stroke)
+    )
+    label flywheel_moment(
+        disk_moment_of_inertia(mass: flywheel_mass, radius: flywheel_radius)
+    )
+    label other_moment( // Moment from cams, pulleys, etc [estimated]
+        disk_moment_of_inertia(mass: 1 * units.kg, radius: 1.0 * units.cm)
+    )
+
+    label v_angle(60 * units.deg)
+    crankshaft c0(
+        throw: stroke / 2,
+        flywheel_mass: flywheel_mass,
+        mass: crank_mass,
+        friction_torque: 1.0 * units.lb_ft,
+        moment_of_inertia:
+            crank_moment + flywheel_moment + other_moment,
+        position_x: 0.0,
+        position_y: 0.0,
+        tdc: 90 * units.deg + (v_angle / 2.0)
+        // tdc: 60
+    )
+
+    rod_journal rj0(angle: 0 * units.deg)
+    rod_journal rj1(angle: 120 * units.deg)
+    rod_journal rj2(angle: 240 * units.deg)
+    rod_journal rj3(angle: 240 * units.deg)
+    rod_journal rj4(angle: 120 * units.deg)
+    rod_journal rj5(angle: 0 * units.deg)
+
+
+    c0
+        .add_rod_journal(rj0)
+        .add_rod_journal(rj1)
+        .add_rod_journal(rj2)
+        .add_rod_journal(rj3)
+        .add_rod_journal(rj4)
+        .add_rod_journal(rj5)
+
+    piston_parameters piston_params(
+        mass: (350) * units.g, // 414 - piston mass, 152 - pin weight
+        compression_height: compression_height,
+        wrist_pin_position: 0.0,
+        displacement: 0.0
+    )
+
+    connecting_rod_parameters cr_params(
+        mass: rod_mass,
+        moment_of_inertia: rod_moment_of_inertia(
+            mass: rod_mass,
+            length: rod_length
+        ),
+        center_of_mass: 0.0,
+        length: rod_length
+    )
+
+    intake intake(
+        plenum_volume: 1.325 * units.L,
+        plenum_cross_section_area: 20.0 * units.cm2,
+        intake_flow_rate: k_carb(3600.0),
+        runner_flow_rate: k_carb(300.0),
+        runner_length: 7.0 * units.inch,
+        idle_flow_rate: k_carb(0.0),
+        idle_throttle_plate_position: 0.995,
+        // idle increase
+        velocity_decay: 0.5
+    )
+
+    exhaust_system_parameters es_params(
+        outlet_flow_rate: k_carb(3600.0),
+        primary_tube_length: 7.0 * units.inch,
+        primary_flow_rate: k_carb(300.0),
+        velocity_decay: 1.0,
+        volume: 150.0 * units.L
+    )
+
+    exhaust_system exhaust0(
+        es_params,
+        audio_volume: 1.0,
+        // length: 50 * units.inch,
+        impulse_response: ir_lib.mild_exhaust_0
+        // mild_exhaust_0_reverb
+    )
+
+    exhaust_system exhaust1(
+        es_params,
+        audio_volume: 1.0,
+        // length: 50 * units.inch,
+        impulse_response: ir_lib.mild_exhaust_0
+        // mild_exhaust_0_reverb
+    )
+
+    cylinder_bank_parameters bank_params(
+        bore: bore,
+        deck_height: stroke / 2 + rod_length + compression_height
+    )
+
+    cylinder_bank b0(bank_params, angle: v_angle / 2.0)
+    cylinder_bank b1(bank_params, angle: -v_angle / 2.0)
+
+
+    b0
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj0,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire1,
+            sound_attenuation: 1
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj1,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire2,
+            sound_attenuation: 1
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj2,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire3,
+            sound_attenuation: 1
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj3,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire4,
+            sound_attenuation: 1
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj4,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire5,
+            sound_attenuation: 1
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj5,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire6,
+            sound_attenuation: 1
+        )
+    .set_cylinder_head(
+            honda_vtec_head(
+                intake_camshaft: camshaft.intake_cam_1,
+                exhaust_camshaft: camshaft.exhaust_cam_1,
+                vtec_intake_camshaft: camshaft.vtec_intake_cam_1,
+                vtec_exhaust_camshaft: camshaft.vtec_exhaust_cam_1,
+                // camshaft_set_1: camshaft,
+                flip_display: true,
+                flow_attenuation: 1.5)
+        )
+
+    b1
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj0,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire7,
+            sound_attenuation: 0.9
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj1,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire8,
+            sound_attenuation: 1.1
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj2,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire9,
+            sound_attenuation: 0.8
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj3,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire10,
+            sound_attenuation: 0.9
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj4,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire11,
+            sound_attenuation: 0.9
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.002)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj5,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire12,
+            sound_attenuation: 0.9
+        )
+    .set_cylinder_head(
+            honda_vtec_head(
+                intake_camshaft: camshaft.intake_cam_2,
+                exhaust_camshaft: camshaft.exhaust_cam_2,
+                vtec_intake_camshaft: camshaft.vtec_intake_cam_2,
+                vtec_exhaust_camshaft: camshaft.vtec_exhaust_cam_2,
+                // camshaft_set_2: camshaft,
+                flow_attenuation: 1.5)
+        )
+
+    engine
+        .add_cylinder_bank(b0)
+        .add_cylinder_bank(b1)
+
+    engine.add_crankshaft(c0)
+
+    harmonic_cam_lobe intake_lobe(
+        duration_at_50_thou: 210 * units.deg,
+        gamma: 1.0,
+        lift: 6.9 * units.mm,
+        steps: 100
+    )
+
+    harmonic_cam_lobe exhaust_lobe(
+        duration_at_50_thou: 190 * units.deg,
+        gamma: 1.0,
+        lift: 6.5 * units.mm,
+        steps: 100
+    )
+
+    harmonic_cam_lobe vtec_intake_lobe(
+        duration_at_50_thou: 240 * units.deg,
+        gamma: 0.5,
+        lift: 11.5 * units.mm,
+        steps: 100
+    )
+
+    harmonic_cam_lobe vtec_exhaust_lobe(
+        duration_at_50_thou: 232 * units.deg,
+        gamma: 0.5,
+        lift: 10.5 * units.mm,
+        steps: 100
+    )
+
+    honda_vtec_camshaft camshaft(
+        lobe_profile: "N/A",
+        vtec_lobe_profile: "N/A",
+
+        intake_lobe_profile: intake_lobe,
+        exhaust_lobe_profile: exhaust_lobe,
+        vtec_intake_lobe_profile: vtec_intake_lobe,
+        vtec_exhaust_lobe_profile: vtec_exhaust_lobe,
+
+        intake_lobe_center:  75 * units.deg,
+        exhaust_lobe_center: 75 * units.deg,
+        vtec_intake_lobe_center: 50 * units.deg,
+        vtec_exhaust_lobe_center:50 * units.deg,
+        // these helped make engine run better
+        base_radius: 1.0 * units.inch
+    )
+
+    function timing_curve(1000 * units.rpm)
+    timing_curve
+        .add_sample(0000 * units.rpm, 25 * units.deg)
+        .add_sample(1000 * units.rpm, 25 * units.deg)
+        .add_sample(2000 * units.rpm, 30 * units.deg)
+        .add_sample(3000 * units.rpm, 30 * units.deg)
+        .add_sample(4000 * units.rpm, 30 * units.deg)
+
+    // function timing_curve(1000 * units.rpm)
+    // timing_curve
+    //     .add_sample(0000 * units.rpm, 10 * units.deg)
+    //     .add_sample(1000 * units.rpm, 30 * units.deg)
+    //     .add_sample(2000 * units.rpm, 40 * units.deg)
+    //     .add_sample(3000 * units.rpm, 40 * units.deg)
+    //     .add_sample(4000 * units.rpm, 45 * units.deg)
+    //     .add_sample(5000 * units.rpm, 50 * units.deg)
+    //     .add_sample(6000 * units.rpm, 70 * units.deg)
+    //     .add_sample(7000 * units.rpm, 70 * units.deg)
+	// 	.add_sample(8000 * units.rpm, 70 * units.deg)
+    //     .add_sample(8500 * units.rpm, 75 * units.deg)
+
+    /*timing curve doesnt affect spark plug/cam timing*/
+
+    ignition_module ignition_module(
+        timing_curve: timing_curve,
+        rev_limit: rev * units.rpm, //43244374
+        limiter_duration: 0.07)
+    
+    ignition_module
+    // old firing order is 1-12-4-9-2-11-6-7-3-10-5-8
+    // new firing order inverts B2 (Crankshaft stress reduction)
+    // 1-7-4-10-2-8-6-12-3-9-5-11
+           .connect_wire(wires.wire1, 0 * 60 * units.deg) 
+           .connect_wire(wires.wire2, 4 * 60 * units.deg) 
+           .connect_wire(wires.wire3, 8 * 60 * units.deg) 
+           .connect_wire(wires.wire4, 2 * 60 * units.deg) 
+           .connect_wire(wires.wire5,10 * 60 * units.deg) 
+           .connect_wire(wires.wire6, 6 * 60 * units.deg) 
+           .connect_wire(wires.wire7, 7 * 60 * units.deg) 
+           .connect_wire(wires.wire8,11 * 60 * units.deg) 
+           .connect_wire(wires.wire9, 3 * 60 * units.deg) 
+          .connect_wire(wires.wire10, 9 * 60 * units.deg)
+          .connect_wire(wires.wire11, 5 * 60 * units.deg)
+          .connect_wire(wires.wire12, 1 * 60 * units.deg)
+    // valves
+    // early = subtract
+    // late  = add
+          
+
+    engine.add_ignition_module(ignition_module)
+}
+
+private node aventador {
+    alias output __out:
+        vehicle(
+            mass: 3417 * units.lb,
+            drag_coefficient: 0.33,
+            cross_sectional_area: (79.9 * units.inch) * (44.7 * units.inch),
+            diff_ratio: 3.55,
+            tire_radius: 12 * units.inch,
+            rolling_resistance: 400 * units.N
+        );
+}
+
+private node integra_type_12_transmission {
+    alias output __out:
+        transmission(
+            max_clutch_torque: 760 * units.lb_ft
+        )
+        .add_gear(3.000)
+        .add_gear(2.000)
+        .add_gear(1.500)
+        .add_gear(1.200)
+        .add_gear(0.900)
+        .add_gear(0.700);
+}
+
+public node main {
+    run(
+        engine: lambo_vtec_v12(),
+        transmission: integra_type_12_transmission(),
+        vehicle: aventador()
+    )
+}
+
+main()

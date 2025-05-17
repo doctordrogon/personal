@@ -108,41 +108,55 @@ private node modifiedLS_v12_camshaft {
     camshaft _intake_cam_1(params, lobe_profile: intake_lobe_profile)
     camshaft _exhaust_cam_1(params, lobe_profile: exhaust_lobe_profile)
 
-    label rot(90 * units.deg)
     label rot360(360 * units.deg)
     
-    // tg = timed good
-    // st = spark plug timing needs work
-    // nw = needs work
+    // valves
+    // early = subtract
+    // late  = add
+    // its opposite
+
+    label cyl1(0 * 60) // good
+    label cyl2(0 * 60) // nope
+    label cyl3(8 * 60) // good
+    label cyl4(2 * 60) // tdc
+   label cyl5(10 * 60) // good
+    label cyl6(6 * 60)  
+    label cyl7(7 * 60)
+   label cyl8(11 * 60) 
+    label cyl9(3 * 60) 
+   label cyl10(9 * 60) 
+   label cyl11(5 * 60) 
+   label cyl12(1 * 60) 
+
     _exhaust_cam_0
-        .add_lobe(rot360 - exhaust_lobe_center + (0*120) * units.deg)      // 1  tg
-        .add_lobe(rot360 - exhaust_lobe_center + (4*120) * units.deg)      // 3  tg
-        .add_lobe(rot360 - exhaust_lobe_center + (2*120) * units.deg)      // 5  tg
-        .add_lobe(rot360 - exhaust_lobe_center + (5*120) + 90 * units.deg) // 7  tg
-        .add_lobe(rot360 - exhaust_lobe_center + (2*120) + 45 * units.deg) // 9  tg
-        .add_lobe(rot360 - exhaust_lobe_center + (7*120) + 90 * units.deg) // 11 st
+        .add_lobe(rot360 - exhaust_lobe_center + cyl1 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center + cyl3 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center + cyl5 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center + cyl7 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center + cyl9 * units.deg)
+        .add_lobe(rot360 - exhaust_lobe_center + cyl11* units.deg)
     _intake_cam_0
-        .add_lobe(rot360 + intake_lobe_center + (0*120) * units.deg)       // 1  tg
-        .add_lobe(rot360 + intake_lobe_center + (4*120) * units.deg)       // 3  tg
-        .add_lobe(rot360 + intake_lobe_center + (2*120) * units.deg)       // 5  tg
-        .add_lobe(rot360 + intake_lobe_center + (5*120) + 90 * units.deg)  // 7  tg
-        .add_lobe(rot360 + intake_lobe_center + (2*120) + 45 * units.deg)  // 9  tg
-        .add_lobe(rot360 + intake_lobe_center + (7*120) + 90 * units.deg)  // 11 st
+        .add_lobe(rot360 + intake_lobe_center + cyl1 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center + cyl3 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center + cyl5 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center + cyl7 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center + cyl9 * units.deg)
+        .add_lobe(rot360 + intake_lobe_center + cyl11* units.deg)
 
     _exhaust_cam_1
-        .add_lobe(rot360 - exhaust_lobe_center + (2*120) * units.deg)      // 2  st
-        .add_lobe(rot360 - exhaust_lobe_center + (6*120) * units.deg)      // 4  st
-        .add_lobe(rot360 - exhaust_lobe_center + (1*120) * units.deg)      // 6  st
-        .add_lobe(rot360 - exhaust_lobe_center + (2*120) + 90 * units.deg) // 8  tg
-        .add_lobe(rot360 - exhaust_lobe_center + (8*120) + 90 * units.deg) // 10 st
-        .add_lobe(rot360 - exhaust_lobe_center + (5*120) + 90 * units.deg) // 12 st
+        .add_lobe(rot360 - exhaust_lobe_center + cyl2 * units.deg) 
+        .add_lobe(rot360 - exhaust_lobe_center + cyl4 * units.deg) 
+        .add_lobe(rot360 - exhaust_lobe_center + cyl6 * units.deg) 
+        .add_lobe(rot360 - exhaust_lobe_center + cyl8 * units.deg) 
+        .add_lobe(rot360 - exhaust_lobe_center + cyl10* units.deg) 
+        .add_lobe(rot360 - exhaust_lobe_center + cyl12* units.deg) 
     _intake_cam_1
-        .add_lobe(rot360 + intake_lobe_center + (2*120) * units.deg)       // 2  st
-        .add_lobe(rot360 + intake_lobe_center + (6*120) * units.deg)       // 4  st
-        .add_lobe(rot360 + intake_lobe_center + (1*120) * units.deg)       // 6  st
-        .add_lobe(rot360 + intake_lobe_center + (2*120) + 90 * units.deg)  // 8  tg
-        .add_lobe(rot360 + intake_lobe_center + (8*120) + 90 * units.deg)  // 10 st
-        .add_lobe(rot360 + intake_lobe_center + (5*120) + 90 * units.deg)  // 12 st
+        .add_lobe(rot360 + intake_lobe_center + cyl2 * units.deg)  
+        .add_lobe(rot360 + intake_lobe_center + cyl4 * units.deg)  
+        .add_lobe(rot360 + intake_lobe_center + cyl6 * units.deg)  
+        .add_lobe(rot360 + intake_lobe_center + cyl8 * units.deg)  
+        .add_lobe(rot360 + intake_lobe_center + cyl10* units.deg)  
+        .add_lobe(rot360 + intake_lobe_center + cyl12* units.deg)  
 }
 
 private node turbulence_to_flame_speed_ratio {
@@ -166,10 +180,10 @@ public node ls_v8_replica {
     engine engine(
         name: "LS but v12",
 
-        starter_torque: 400 * units.lb_ft,
-        starter_speed: 400 * units.rpm,
+        starter_torque: 500 * units.lb_ft,
+        starter_speed: 500 * units.rpm,
 
-        redline: 8500 * units.rpm,
+        redline: 8600 * units.rpm,
         // also change at rev_limit
 
         throttle_gamma: 2.0,
@@ -224,7 +238,7 @@ public node ls_v8_replica {
         // Angular velocity = change in angular rotation / change in time
     )
 
-    label v_angle(90 * units.deg)
+    label v_angle(60 * units.deg)
     crankshaft c0(
         throw: stroke / 2,
         flywheel_mass: flywheel_mass,
@@ -517,23 +531,20 @@ public node ls_v8_replica {
         limiter_duration: 0.07)
 
     ignition_module
-        // firing order: 1, 5, 3, 6, 2, 4
+        // firing order: 1, 12, 4, 9, 2, 11, 6, 7, 3, 10, 5, 8
         // bank 1
-            .connect_wire(wires.wire1,  0 * 120 * units.deg) // cylinder 1
-            .connect_wire(wires.wire3,  4 * 120 * units.deg) // cylinder 2
-            .connect_wire(wires.wire5,  2 * 120 * units.deg) // cylinder 3
-            .connect_wire(wires.wire7,  5 * 120 * units.deg) // cylinder 4
-            .connect_wire(wires.wire9,  1 * 120 * units.deg) // cylinder 5
-            .connect_wire(wires.wire11, 3 * 120 * units.deg) // cylinder 6
-
-        // firing order: 12, 8, 10, 7, 11, 9
-        // bank 2
-            .connect_wire(wires.wire2,  (3*120) + 90 * units.deg) // cylinder 7
-            .connect_wire(wires.wire4,  (1*120) + 90 * units.deg) // cylinder 8
-            .connect_wire(wires.wire6,  (5*120) + 90 * units.deg) // cylinder 9
-            .connect_wire(wires.wire8,  (2*120) + 90 * units.deg) // cylinder 10
-            .connect_wire(wires.wire10, (4*120) + 90 * units.deg) // cylinder 11
-            .connect_wire(wires.wire12, (0*120) + 90 * units.deg) // cylinder 12
+            .connect_wire(wires.wire1, 0 * 60 * units.deg)
+            .connect_wire(wires.wire12,1 * 60 * units.deg)
+            .connect_wire(wires.wire4, 2 * 60 * units.deg)
+            .connect_wire(wires.wire9, 3 * 60 * units.deg)
+            .connect_wire(wires.wire2, 4 * 60 * units.deg)
+            .connect_wire(wires.wire11,5 * 60 * units.deg)
+            .connect_wire(wires.wire6, 6 * 60 * units.deg)
+            .connect_wire(wires.wire7, 7 * 60 * units.deg)
+            .connect_wire(wires.wire3, 8 * 60 * units.deg)
+            .connect_wire(wires.wire10,9 * 60 * units.deg)
+            .connect_wire(wires.wire5,10 * 60 * units.deg) 
+            .connect_wire(wires.wire8,11 * 60 * units.deg) 
 
     engine.add_ignition_module(ignition_module)
 /* 
