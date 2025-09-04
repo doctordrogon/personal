@@ -28,7 +28,7 @@ private node honda_vtec_head {
     input chamber_volume: 41.632 * units.cc;
     input intake_runner_volume: 141 * units.cc;
 
-    input intake_runner_cross_section_area: 1.15 * units.inch * 1.15 * units.inch;
+    input intake_runner_cross_section_area: 1.35 * units.inch * 1.35 * units.inch;
     // http://www.wallaceracing.com/runnertorquecalc.php
 
     input exhaust_runner_volume: 50.0 * units.cc;
@@ -68,7 +68,6 @@ private node honda_vtec_head {
         .add_flow_sample(400 * lift_scale, 170 * flow_attenuation)
         .add_flow_sample(450 * lift_scale, 170 * flow_attenuation)
 
-/*
 // function intake_flow(1 * units.mm)
     // intake_flow
     //     .add_flow_sample(0 * lift_scale, 0 * flow_attenuation)
@@ -100,7 +99,6 @@ private node honda_vtec_head {
     //     .add_flow_sample(10 * lift_scale, 200 * flow_attenuation)
     //     .add_flow_sample(11 * lift_scale, 210 * flow_attenuation)
     //     .add_flow_sample(12 * lift_scale, 215 * flow_attenuation)
-    */
     
 
     generic_cylinder_head head(
@@ -138,7 +136,7 @@ private node honda_vtec_camshaft {
     input vtec_lobe_separation: 126 * units.deg;
     input vtec_intake_lobe_center: vtec_lobe_separation;
     input vtec_exhaust_lobe_center: vtec_lobe_separation;   
-    input advance: -16.5 * units.deg; 
+    input advance: -20 * units.deg; 
     input base_radius: 1.0 * units.inch;
 
     output intake_cam_1: _intake_cam_1;
@@ -179,18 +177,18 @@ private node honda_vtec_camshaft {
 // early = subtract
 // late  = add
 
- label cyl1(5  * 60)      // good
- label cyl2(0  * 60)      // good
- label cyl3(-3 * 60)      // tdc
- label cyl4(4  * 60)      // tdc
- label cyl5(2  * 60)      // tdc
- label cyl6(2  * 60)      // tdc
- label cyl7(7  * 60 + 30) // tdc
- label cyl8(8 * 60)       // tdc
- label cyl9(3  * 60)      // tdc
-label cyl10(10  * 60)     // tdc
-label cyl11(-1  * 60)     // good
-label cyl12(-6  * 60)     // good
+ label cyl1(6  * 60 - 15) // good
+ label cyl2(1  * 60 - 15) // good
+ label cyl3(-2 * 60 - 15) // good
+ label cyl4(5  * 60 - 15) // good
+ label cyl5(2  * 60 - 15) // good
+ label cyl6(9  * 60 - 15) // good
+ label cyl7(8  * 60 - 15) // good
+ label cyl8(3  * 60 - 15) // good
+ label cyl9(4  * 60 - 15) // good
+label cyl10(11 * 60 - 15) // good
+label cyl11(0  * 60 - 15) // good
+label cyl12(-5 * 60 - 15) // good
 
 /*****************************************************************************/
 
@@ -276,10 +274,10 @@ public node lambo_vtec_v12 {
     engine engine(
         name: "vtec v12",
         starter_torque: 250 * units.lb_ft,
-        starter_speed:  1500 * units.rpm,
+        starter_speed:  1600 * units.rpm,
         redline: rev * units.rpm,
         fuel: fuel(
-            max_turbulence_effect: 4,
+            max_turbulence_effect: 2,
             max_burning_efficiency: 0.75
         ),
         throttle_gamma: 2.0,
@@ -301,8 +299,8 @@ public node lambo_vtec_v12 {
     label rod_mass(50 * units.g)
     label compression_height(39.8 * units.mm)
     label crank_mass(8 * units.kg)
-    label flywheel_mass(30 * units.lb)
-    label flywheel_radius(6.5 * units.inch)
+    label flywheel_mass(15 * units.lb)
+    label flywheel_radius(6 * units.inch)
 
     label crank_moment(
         disk_moment_of_inertia(mass: crank_mass, radius: stroke)
@@ -345,7 +343,7 @@ public node lambo_vtec_v12 {
         .add_rod_journal(rj5)
 
     piston_parameters piston_params(
-        mass: (350) * units.g, // 414 - piston mass, 152 - pin weight
+        mass: (100) * units.g, // 414 - piston mass, 152 - pin weight
         compression_height: compression_height,
         wrist_pin_position: 0.0,
         displacement: 0.0
@@ -362,14 +360,14 @@ public node lambo_vtec_v12 {
     )
 
     intake intake(
-        plenum_volume: 1.325 * units.L,
-        plenum_cross_section_area: 20.0 * units.cm2,
+        plenum_volume: 1 * units.L,
+        plenum_cross_section_area: 10.0 * units.cm2,
         intake_flow_rate: k_carb(3600.0),
         runner_flow_rate: k_carb(300.0),
         runner_length: 7.0 * units.inch,
         idle_flow_rate: k_carb(0.0),
-        idle_throttle_plate_position: 0.995,
-        // idle increase
+        idle_throttle_plate_position: 0.99755,
+        // idle (alternatively, decrease compression ratio, increase flywheel diameter and weight)
         velocity_decay: 0.5
     )
 
@@ -385,16 +383,14 @@ public node lambo_vtec_v12 {
         es_params,
         audio_volume: 1.0,
         // length: 50 * units.inch,
-        impulse_response: ir_lib.mild_exhaust_0
-        // mild_exhaust_0_reverb
+        impulse_response: ir_lib.mild_exhaust_0_reverb
     )
 
     exhaust_system exhaust1(
         es_params,
         audio_volume: 1.0,
         // length: 50 * units.inch,
-        impulse_response: ir_lib.mild_exhaust_0
-        // mild_exhaust_0_reverb
+        impulse_response: ir_lib.mild_exhaust_0_reverb
     )
 
     cylinder_bank_parameters bank_params(
@@ -414,7 +410,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust1,
             ignition_wire: wires.wire1,
-            sound_attenuation: 1
+            sound_attenuation: 0.65
         )
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.002)),
@@ -423,7 +419,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust1,
             ignition_wire: wires.wire2,
-            sound_attenuation: 1
+            sound_attenuation: 1.1
         )
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.001)),
@@ -432,7 +428,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust1,
             ignition_wire: wires.wire3,
-            sound_attenuation: 1
+            sound_attenuation: 0.8
         )
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.002)),
@@ -441,7 +437,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust1,
             ignition_wire: wires.wire4,
-            sound_attenuation: 1
+            sound_attenuation: 1.0
         )
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.002)),
@@ -450,7 +446,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust1,
             ignition_wire: wires.wire5,
-            sound_attenuation: 1
+            sound_attenuation: 0.50
         )
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.002)),
@@ -459,7 +455,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust1,
             ignition_wire: wires.wire6,
-            sound_attenuation: 1
+            sound_attenuation: 1.1
         )
     .set_cylinder_head(
             honda_vtec_head(
@@ -480,7 +476,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust0,
             ignition_wire: wires.wire7,
-            sound_attenuation: 0.9
+            sound_attenuation: 0.95
         )
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.002)),
@@ -498,7 +494,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust0,
             ignition_wire: wires.wire9,
-            sound_attenuation: 0.8
+            sound_attenuation: 0.5
         )
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.002)),
@@ -507,7 +503,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust0,
             ignition_wire: wires.wire10,
-            sound_attenuation: 0.9
+            sound_attenuation: 0.6
         )
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.002)),
@@ -516,7 +512,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust0,
             ignition_wire: wires.wire11,
-            sound_attenuation: 0.9
+            sound_attenuation: 0.8
         )
         .add_cylinder(
             piston: piston(piston_params, blowby: k_28inH2O(0.002)),
@@ -525,7 +521,7 @@ public node lambo_vtec_v12 {
             intake: intake,
             exhaust_system: exhaust0,
             ignition_wire: wires.wire12,
-            sound_attenuation: 0.9
+            sound_attenuation: 0.7
         )
     .set_cylinder_head(
             honda_vtec_head(
@@ -619,23 +615,19 @@ public node lambo_vtec_v12 {
     ignition_module
     // old firing order is 1-12-4-9-2-11-6-7-3-10-5-8
     // new firing order inverts B2 (Crankshaft stress reduction)
-    // 1-7-4-10-2-8-6-12-3-9-5-11
+    // 1-12-5-8-3-10-6-7-2-11-4-9
            .connect_wire(wires.wire1, 0 * 60 * units.deg) 
-           .connect_wire(wires.wire2, 4 * 60 * units.deg) 
-           .connect_wire(wires.wire3, 8 * 60 * units.deg) 
-           .connect_wire(wires.wire4, 2 * 60 * units.deg) 
-           .connect_wire(wires.wire5,10 * 60 * units.deg) 
+           .connect_wire(wires.wire2, 8 * 60 * units.deg) 
+           .connect_wire(wires.wire3, 4 * 60 * units.deg) 
+           .connect_wire(wires.wire4,10 * 60 * units.deg) 
+           .connect_wire(wires.wire5, 2 * 60 * units.deg) 
            .connect_wire(wires.wire6, 6 * 60 * units.deg) 
            .connect_wire(wires.wire7, 7 * 60 * units.deg) 
-           .connect_wire(wires.wire8,11 * 60 * units.deg) 
-           .connect_wire(wires.wire9, 3 * 60 * units.deg) 
-          .connect_wire(wires.wire10, 9 * 60 * units.deg)
-          .connect_wire(wires.wire11, 5 * 60 * units.deg)
+           .connect_wire(wires.wire8, 3 * 60 * units.deg) 
+           .connect_wire(wires.wire9,11 * 60 * units.deg) 
+          .connect_wire(wires.wire10, 5 * 60 * units.deg)
+          .connect_wire(wires.wire11, 9 * 60 * units.deg)
           .connect_wire(wires.wire12, 1 * 60 * units.deg)
-    // valves
-    // early = subtract
-    // late  = add
-          
 
     engine.add_ignition_module(ignition_module)
 }
@@ -652,7 +644,7 @@ private node aventador {
         );
 }
 
-private node integra_type_12_transmission {
+private node custom_transmission_type_3 {
     alias output __out:
         transmission(
             max_clutch_torque: 760 * units.lb_ft
@@ -668,7 +660,7 @@ private node integra_type_12_transmission {
 public node main {
     run(
         engine: lambo_vtec_v12(),
-        transmission: integra_type_12_transmission(),
+        transmission: custom_transmission_type_3(),
         vehicle: aventador()
     )
 }
