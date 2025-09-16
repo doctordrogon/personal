@@ -1,0 +1,498 @@
+import "engine_sim.mr"
+
+
+                   ///1984 Formula Kijang 4K (F4)///
+
+///author:@Playerindo10
+///YouTube:@Playerindo
+///Instagram:@playerindo10/@10_autoworks
+///Free to Use just Don't Forget to Give Credits to the Author.
+
+// this is *slightly* modified
+
+units units()
+constants constants()
+impulse_response_library ir_lib()
+label cycle(2 * 360 * units.deg)
+label rev(9200)
+
+float airfuel_ratio(14.7)
+
+private node wires {
+    output wire1: ignition_wire();
+    output wire2: ignition_wire();
+    output wire3: ignition_wire();
+    output wire4: ignition_wire();
+    }
+
+private node F20C1_head { ///CYLINDER HEAD ASSY 12100-PCX-010
+    input camshaft_set;
+    input chamber_volume: 46.6 * units.cc;
+    input intake_runner_volume: 115.28 * units.cc;
+    input exhaust_runner_volume: 683.6 * units.cc;
+    //Valve, Intake 13711-24011 (Custom)
+    input intake_runner_cross_section_area: 35 * units.mm * 35 * units.mm;
+
+    //Valve, Exhaust 13715-24012 (Custom)
+    input exhaust_runner_cross_section_area: 30 * units.mm * 30 * units.mm;
+
+
+    input flow_attenuation: 1.0;
+    input lift_scale: 1.0;
+    input flip_display: true;
+    alias output __out: head;
+
+    function intake_flow(50 * units.thou)
+    intake_flow
+        .add_flow_sample(0 * lift_scale, 0 * flow_attenuation)
+        .add_flow_sample(50 * lift_scale, 53.10 * flow_attenuation)
+        .add_flow_sample(100 * lift_scale, 104.80 * flow_attenuation)
+        .add_flow_sample(150 * lift_scale, 147.10 * flow_attenuation)
+        .add_flow_sample(200 * lift_scale, 179.50 * flow_attenuation)
+        .add_flow_sample(250 * lift_scale, 218.60 * flow_attenuation)
+        .add_flow_sample(300 * lift_scale, 246.40 * flow_attenuation)
+        .add_flow_sample(350 * lift_scale, 272.50 * flow_attenuation)
+        .add_flow_sample(400 * lift_scale, 296.60 * flow_attenuation)
+        .add_flow_sample(450 * lift_scale, 312.90 * flow_attenuation)
+        .add_flow_sample(500 * lift_scale, 321.20 * flow_attenuation)
+
+    function exhaust_flow(50 * units.thou)
+    exhaust_flow
+        .add_flow_sample(0 * lift_scale, 0 * flow_attenuation)
+        .add_flow_sample(50 * lift_scale, 43.00 * flow_attenuation)
+        .add_flow_sample(100 * lift_scale, 83.10 * flow_attenuation)
+        .add_flow_sample(150 * lift_scale, 118.40 * flow_attenuation)
+        .add_flow_sample(200 * lift_scale, 147.40 * flow_attenuation)
+        .add_flow_sample(250 * lift_scale, 176.90 * flow_attenuation)
+        .add_flow_sample(300 * lift_scale, 197.40 * flow_attenuation)
+        .add_flow_sample(350 * lift_scale, 209.40 * flow_attenuation)
+        .add_flow_sample(400 * lift_scale, 217.30 * flow_attenuation)
+        .add_flow_sample(450 * lift_scale, 223.70 * flow_attenuation)
+        .add_flow_sample(500 * lift_scale, 229.10 * flow_attenuation)
+
+    generic_cylinder_head head(
+        chamber_volume: chamber_volume,
+        intake_runner_volume: intake_runner_volume,
+        intake_runner_cross_section_area: intake_runner_cross_section_area,
+        exhaust_runner_volume: exhaust_runner_volume,
+        exhaust_runner_cross_section_area: exhaust_runner_cross_section_area,
+
+        intake_port_flow: intake_flow,
+        exhaust_port_flow: exhaust_flow,
+        valvetrain: vtec_valvetrain(
+            min_rpm: 5850 * units.rpm,
+            vtec_intake_camshaft: camshaft_set.vtec_intake_cam,
+            vtec_exhaust_camshaft: camshaft_set.vtec_exhaust_cam,
+            intake_camshaft: camshaft_set.intake_cam,
+            exhaust_camshaft: camshaft_set.exhaust_cam
+        ),
+        flip_display: flip_display
+    )
+}
+
+private node F20C1_camshaft { 
+    input lobe_profile;
+    input vtec_lobe_profile;
+
+    ///CAMSHAFT COMP, IN 14110-PCX-000
+    input intake_lobe_profile: lobe_profile;
+    input intake_lobe_center: 115.0 * units.deg;
+    input vtec_intake_lobe_profile: vtec_lobe_profile;
+    input vtec_intake_lobe_center: 108.0 * units.deg;
+
+    input lobe_separation: 114.0 * units.deg;
+    input vtec_lobe_separation: 108.5 * units.deg;
+
+    ///CAMSHAFT COMP, EX 14120-PCX-000
+    input exhaust_lobe_profile: lobe_profile;
+    input exhaust_lobe_center: 117.0 * units.deg;
+    input vtec_exhaust_lobe_profile: vtec_lobe_profile;
+    input vtec_exhaust_lobe_center: 108.5 * units.deg;   
+
+    input advance: -3.25 * units.deg; 
+
+    input base_radius: 15.0 * units.mm;
+
+    output intake_cam: _intake_cam;
+    output exhaust_cam: _exhaust_cam;
+
+    output vtec_intake_cam: _vtec_intake_cam;
+    output vtec_exhaust_cam: _vtec_exhaust_cam;
+
+    camshaft_parameters params (
+        advance: advance,
+        base_radius: base_radius
+    )
+
+    camshaft _intake_cam(params, lobe_profile: intake_lobe_profile)
+    camshaft _exhaust_cam(params, lobe_profile: exhaust_lobe_profile)
+
+    camshaft _vtec_intake_cam(params, lobe_profile: vtec_intake_lobe_profile)
+    camshaft _vtec_exhaust_cam(params, lobe_profile: vtec_exhaust_lobe_profile)
+
+    label rot(180 * units.deg)
+    label rot360(360 * units.deg)
+
+    // 1 3 4 2
+    _exhaust_cam
+        .add_lobe(rot360 - exhaust_lobe_center + 0 * rot) // 1
+        .add_lobe(rot360 - exhaust_lobe_center + 3 * rot) // 2
+        .add_lobe(rot360 - exhaust_lobe_center + 1 * rot) // 3
+        .add_lobe(rot360 - exhaust_lobe_center + 2 * rot) // 4
+
+    _intake_cam
+        .add_lobe(rot360 + intake_lobe_center + 0 * rot) // 1
+        .add_lobe(rot360 + intake_lobe_center + 3 * rot) // 2
+        .add_lobe(rot360 + intake_lobe_center + 1 * rot) // 3
+        .add_lobe(rot360 + intake_lobe_center + 2 * rot) // 4
+
+    _vtec_exhaust_cam
+        .add_lobe(rot360 - exhaust_lobe_center + 0.1 * rot) // 1
+        .add_lobe(rot360 - exhaust_lobe_center + 3.1 * rot) // 2
+        .add_lobe(rot360 - exhaust_lobe_center + 1.1 * rot) // 3
+        .add_lobe(rot360 - exhaust_lobe_center + 2.1 * rot) // 4
+    _vtec_intake_cam
+        .add_lobe(rot360 + intake_lobe_center + -0.1 * rot) // 1
+        .add_lobe(rot360 + intake_lobe_center + 2.9 * rot) // 2
+        .add_lobe(rot360 + intake_lobe_center + 0.9 * rot) // 3
+        .add_lobe(rot360 + intake_lobe_center + 1.9 * rot) // 4
+
+}
+
+//4K
+public node Toyota4K_i4 {
+    alias output __out: engine;
+
+
+    engine engine(
+        name: "honda K24 in air quotes",
+        starter_torque: 250 * units.lb_ft,
+        starter_speed: 1000 * units.rpm,
+        redline: rev * units.rpm,
+        throttle_gamma: 1.4,
+           fuel: fuel(
+            name: "Pump Gasoline", // pump gas
+            molecular_mass: 100 * units.g, 
+            energy_density: 50.00 * units.kJ / units.g,
+            density: 0.770 * units.kg / units.L,
+            molecular_afr: 14.90,
+            max_turbulence_effect: 2.0,
+            max_dilution_effect: 10.0,
+            burning_efficiency_randomness: 0.0011,
+            max_burning_efficiency: 0.85
+
+            ///Fuel Code by @cor/Discord vz25 or Cor
+        ),
+        convolution: 0.995,
+        hf_gain: 0.0055,
+        noise: 1.0,
+        jitter: 0.6,
+        simulation_frequency: 30000
+    )
+
+    wires wires()
+
+    //Piston Sub-Assy, W/Pin 13101-24011(stock)
+    label bore(87.0 * units.mm)
+
+    //Piston Sub-Assy, W/Pin 13101-24011
+    label piston_mass(150 * units.g)
+
+    //Piston Sub-Assy, W/Pin 13101-24011
+    label compression_height(28.2 * units.mm)
+
+    //Rod Sub-Assy, Connecting 13201-13010
+    label rod_length(151.994 * units.mm)
+
+    //Rod Sub-Assy, Connecting 13201-13010
+    label rod_mass(100 * units.g)
+
+    label wrist_pin_position(0.0 * units.mm)
+
+    //CRANKSHAFT 13411-13010(stock)
+    label stroke(99 * units.mm)
+
+    //CRANKSHAFT 13411-13010
+    label crank_mass(10 * units.kg)
+
+    //Flywheel Sub-Assy 13405-19045 (Custom)
+    label flywheel_mass(2 * units.kg)
+
+    //Flywheel Sub-Assy 13405-19045 (Custom)
+    label flywheel_radius(125 * units.mm)
+
+    label crank_moment(
+        disk_moment_of_inertia(mass: crank_mass, radius: stroke)
+    )
+    label flywheel_moment(
+        disk_moment_of_inertia(mass: flywheel_mass, radius: flywheel_radius)
+    )
+    label other_moment( // Moment from cams, pulleys, etc [estimated]
+        disk_moment_of_inertia(mass: 2.0 * units.kg, radius: 2.0 * units.mm)
+    )
+
+    crankshaft c0(
+        throw: stroke / 2,
+        flywheel_mass: flywheel_mass,
+        mass: crank_mass,
+        friction_torque: 0.5 * units.lb_ft,
+        moment_of_inertia:
+            crank_moment + flywheel_moment + other_moment,
+        position_x: 0.0,
+        position_y: 0.0,
+        tdc: 90 * units.deg
+    )
+
+    // 1 4 3 2
+    rod_journal rj0(angle: 0 * units.deg)
+    rod_journal rj1(angle: 180 * units.deg)
+    rod_journal rj2(angle: 180 * units.deg)
+    rod_journal rj3(angle: 0 * units.deg)
+        c0
+        .add_rod_journal(rj0)
+        .add_rod_journal(rj1)
+        .add_rod_journal(rj2)
+        .add_rod_journal(rj3)
+        
+    piston_parameters piston_params(
+        mass: piston_mass,
+        compression_height: compression_height,
+        wrist_pin_position: wrist_pin_position,
+        displacement: 0.0
+    )
+
+    connecting_rod_parameters cr_params(
+        mass: rod_mass,
+        moment_of_inertia: rod_moment_of_inertia(
+            mass: rod_mass,
+            length: rod_length
+        ),
+        center_of_mass: 0.0,
+        length: rod_length
+    )
+
+    intake intake( ///Weber 32/36DGV
+        plenum_volume: 1377.6 * units.cc,
+        plenum_cross_section_area: 56.0 * units.cm2,
+        intake_flow_rate: k_carb(600.0),
+        runner_flow_rate: k_carb(548.0),
+        runner_length: 95.0 * units.mm,
+        idle_flow_rate: k_carb(0.015),
+        molecular_afr: airfuel_ratio,
+        idle_throttle_plate_position: 0.998735,
+        velocity_decay: 0.7
+
+    )
+
+    exhaust_system_parameters es_params(
+        outlet_flow_rate: k_carb(655.0),
+        primary_tube_length: 7.0 * units.inch,
+        collector_cross_section_area: circle_area(70.8 * units.mm),
+        primary_flow_rate: k_carb(625.0),
+        velocity_decay: 1.0
+    )
+
+    exhaust_system exhaust(
+        es_params,
+        collector_cross_section_area: circle_area(63.46 * units.mm),
+        length: 76.0125 * units.inch,
+        backflow_atmospheric_mixing: 0.030,
+        audio_volume: 4.0 * 0.8,
+        impulse_response: ir_lib.default_0
+    )
+
+    cylinder_bank_parameters bank_params(
+        bore: bore,
+        deck_height: stroke / 2 + rod_length + compression_height
+    )
+
+
+    ///BLOCK ASSY, SHORT 11400-13010
+    cylinder_bank b0(bank_params, angle: 8.0 * units.deg)
+    b0
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj0,
+            intake: intake,
+            exhaust_system: exhaust,
+            ignition_wire: wires.wire1,
+            primary_length: 30.0 * units.inch,
+            sound_attenuation: 3.8 ///3.21
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj1,
+            intake: intake,
+            exhaust_system: exhaust,
+            ignition_wire: wires.wire2,
+            primary_length: 30.5 * units.inch,
+            sound_attenuation: 2.7 ///5.55
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj2,
+            intake: intake,
+            exhaust_system: exhaust,
+            ignition_wire: wires.wire3,
+            primary_length: 32.0 * units.inch,
+            sound_attenuation: 4.1 ///3.44
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.001)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj3,
+            intake: intake,
+            exhaust_system: exhaust,
+            ignition_wire: wires.wire4,
+            primary_length: 35.0 * units.inch,
+            sound_attenuation: 2.9 ///5.66
+        )
+
+        .set_cylinder_head(
+        F20C1_head(
+            camshaft_set: camshaft)
+        )
+
+
+    engine
+        .add_cylinder_bank(b0)
+
+    engine.add_crankshaft(c0)
+
+    ///CAMSHAFT COMP, IN 14110-PCX-000
+    harmonic_cam_lobe intake_lobe(
+        duration_at_50_thou: 225.0 * units.deg,
+        gamma: 1.3,
+        lift: 6.677 * units.mm,
+        steps: 100
+    )
+
+    ///CAMSHAFT COMP, EX 14120-PCX-000
+    harmonic_cam_lobe exhaust_lobe(
+        duration_at_50_thou: 215.0 * units.deg,
+        gamma: 1.3,
+        lift: 6.716 * units.mm,
+        steps: 100
+    )
+
+    ///CAMSHAFT COMP, IN 14110-PCX-000
+    harmonic_cam_lobe vtec_intake_lobe(
+        duration_at_50_thou: 245.0 * units.deg,
+        gamma: 0.4,
+        lift: 10.533 * units.mm,
+        steps: 100
+    )
+
+    ///CAMSHAFT COMP, EX 14120-PCX-000
+    harmonic_cam_lobe vtec_exhaust_lobe(
+        duration_at_50_thou: 235.0 * units.deg,
+        gamma: 0.4,
+        lift: 9.928 * units.mm,
+        steps: 100
+    )
+
+    ///CAMSHAFT COMP, IN 14110-PCX-000/CAMSHAFT COMP, EX 14120-PCX-000
+    F20C1_camshaft camshaft(
+        lobe_profile: "N/A",
+        vtec_lobe_profile: "N/A",
+        intake_lobe_profile: intake_lobe,
+        exhaust_lobe_profile: exhaust_lobe,
+        vtec_intake_lobe_profile: vtec_intake_lobe,
+        vtec_exhaust_lobe_profile: vtec_exhaust_lobe,
+        intake_lobe_center: 115.0 * units.deg,
+        exhaust_lobe_center: 117.0 * units.deg,
+        vtec_intake_lobe_center: 108.0 * units.deg,
+        vtec_exhaust_lobe_center: 108.5 * units.deg,
+        advance: -3.25 * units.deg,
+        base_radius: 15.0 * units.mm
+    )
+
+        	
+
+
+
+
+
+    function timing_curve(1000 * units.rpm)
+    timing_curve
+        .add_sample(0000 * units.rpm, 16 * units.deg)
+        .add_sample(1000 * units.rpm, 20 * units.deg)
+        .add_sample(2000 * units.rpm, 24 * units.deg)
+        .add_sample(3000 * units.rpm, 26 * units.deg)
+        .add_sample(4000 * units.rpm, 28 * units.deg)
+        .add_sample(5000 * units.rpm, 30 * units.deg)
+        .add_sample(6000 * units.rpm, 32 * units.deg)
+        .add_sample(7000 * units.rpm, 34 * units.deg)
+        .add_sample(8000 * units.rpm, 36 * units.deg)
+        .add_sample(9000 * units.rpm, 38 * units.deg)
+        .add_sample(10000 * units.rpm, 40 * units.deg)
+        .add_sample(11000 * units.rpm, 42 * units.deg)
+        .add_sample(12000 * units.rpm, 44 * units.deg)
+
+    ignition_module ignition_module(
+        timing_curve: timing_curve,
+        rev_limit: rev * units.rpm,
+        limiter_duration: 0.05)
+    ignition_module
+            .connect_wire(wires.wire1,  0 * 180 * units.deg)
+            .connect_wire(wires.wire3,  1 * 180 * units.deg)
+            .connect_wire(wires.wire4,  2 * 180 * units.deg)
+            .connect_wire(wires.wire2,  3 * 180 * units.deg)
+    
+    engine.add_ignition_module(ignition_module)
+}
+
+label car_mass(1050 * units.kg)
+
+// 1980 West & Co Japan F4 Chassis (F4)
+public node s2000 {
+    alias output __out:
+        vehicle(
+            mass: car_mass,
+            drag_coefficient: 0.33,
+            cross_sectional_area: (1770 * units.mm) * (1405 * units.mm),
+            diff_ratio: 3.6,
+            tire_radius: 12.54 * units.inch,///F 205/55 R16, R 225/50/R16
+            rolling_resistance: 345.47 * units.N,
+            stiffness: 98 * units.lb_ft / units.deg,
+            damping: 46.0,
+            max_flex: 20 * units.deg,
+            limit_flex: true,
+            simulate_flex: true,
+            max_brake_force: 7500 * units.N
+        );
+}
+
+public node K50_transmission{
+    alias output __out:
+        transmission(
+            max_clutch_torque: 1000 * units.lb_ft,
+            max_clutch_flex: 50 * units.deg,
+            limit_clutch_flex: true,
+            clutch_stiffness: 40 * units.Nm / units.deg,
+            clutch_damping: 2.0,
+            simulate_flex: true
+        )
+
+        //TRD GEAR SETS
+        .add_gear(3.266)
+        .add_gear(2.130)
+        .add_gear(1.517)
+        .add_gear(1.147)
+        .add_gear(0.921)
+        .add_gear(0.738);
+
+}
+
+public node main {
+    run(
+        engine: Toyota4K_i4(),
+        transmission: K50_transmission(),
+        vehicle: s2000()
+    )
+}
+
+main()

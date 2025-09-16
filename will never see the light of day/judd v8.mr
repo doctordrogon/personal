@@ -7,6 +7,7 @@ units units()
 constants constants()
 impulse_response_library ir_lib()
 label cycle(2 * 360 * units.deg)
+label rev(11000)
 
 private node wires {
     output wire1: ignition_wire();
@@ -79,9 +80,7 @@ private node ls_v8_head {
     )
 }
 /*************************************************************************/
-// camshaft timing
 private node ls_v8_camshaft {
-    // camshaft timing
     input lobe_profile;
     input intake_lobe_profile: lobe_profile;
     input exhaust_lobe_profile: lobe_profile;
@@ -111,32 +110,44 @@ private node ls_v8_camshaft {
     label rot360(360 * units.deg)
 
 
-    // 1 8 7 2 6 5 4 3
+    // 1 4 5 8 7 2 3 6
+    label cyl1(0 * rot)    // good
+    label cyl2(2 * rot)    // spark
+    label cyl3(4 * rot)    // good
+    label cyl4(6 * rot)    // good
+    label cyl5(1.25 * rot) // good
+    label cyl6(-2 * rot)   // spark
+    label cyl7(0 * rot)    // good
+    label cyl8(7 * rot)    // good
+
+    // 1 5 3 7 4 8 2 6
     _exhaust_cam_0
         .add_lobe(rot360 - exhaust_lobe_center + 0 * rot) // 1
-        .add_lobe(rot360 - exhaust_lobe_center + 7 * rot) // 3
-        .add_lobe(rot360 - exhaust_lobe_center + 5 * rot) // 5
-        .add_lobe(rot360 - exhaust_lobe_center + 2 * rot) // 7
+        .add_lobe(rot360 - exhaust_lobe_center + 6 * rot) // 2
+        .add_lobe(rot360 - exhaust_lobe_center + 2 * rot) // 3
+        .add_lobe(rot360 - exhaust_lobe_center + 4 * rot) // 4
     _intake_cam_0
         .add_lobe(rot360 + intake_lobe_center + 0 * rot) // 1
-        .add_lobe(rot360 + intake_lobe_center + 7 * rot) // 3
-        .add_lobe(rot360 + intake_lobe_center + 5 * rot) // 5
-        .add_lobe(rot360 + intake_lobe_center + 2 * rot) // 7
+        .add_lobe(rot360 + intake_lobe_center + 6 * rot) // 2
+        .add_lobe(rot360 + intake_lobe_center + 2 * rot) // 3
+        .add_lobe(rot360 + intake_lobe_center + 4 * rot) // 4
 
     _exhaust_cam_1
-        .add_lobe(rot360 - exhaust_lobe_center + 3 * rot) // 2
-        .add_lobe(rot360 - exhaust_lobe_center + 6 * rot) // 4
-        .add_lobe(rot360 - exhaust_lobe_center + 4 * rot) // 6
-        .add_lobe(rot360 - exhaust_lobe_center + 1 * rot) // 8
+        .add_lobe(rot360 - exhaust_lobe_center + 1 * rot) // 5
+        .add_lobe(rot360 - exhaust_lobe_center + 7 * rot) // 6
+        .add_lobe(rot360 - exhaust_lobe_center + 3 * rot) // 7
+        .add_lobe(rot360 - exhaust_lobe_center + 5 * rot) // 8
     _intake_cam_1
-        .add_lobe(rot360 + intake_lobe_center + 3 * rot) // 2
-        .add_lobe(rot360 + intake_lobe_center + 6 * rot) // 4
-        .add_lobe(rot360 + intake_lobe_center + 4 * rot) // 6
-        .add_lobe(rot360 + intake_lobe_center + 1 * rot) // 8
+        .add_lobe(rot360 + intake_lobe_center + 1 * rot) // 5
+        .add_lobe(rot360 + intake_lobe_center + 7 * rot) // 6
+        .add_lobe(rot360 + intake_lobe_center + 3 * rot) // 7
+        .add_lobe(rot360 + intake_lobe_center + 5 * rot) // 8
+
 }
 
+
 /*************************************************************************/
-// probably shouldn't mess with this
+// this dictates the properties of the fuel
 private node turbulence_to_flame_speed_ratio {
     alias output __out:
         function(5.0)
@@ -161,11 +172,11 @@ public node ls_v8_replica {
     engine engine(
         name: "LS with some changes",
 
-        starter_torque: 200 * units.lb_ft,
-        starter_speed: 400 * units.rpm,
+        starter_torque: 500 * units.lb_ft,
+        starter_speed: 500 * units.rpm,
         // change this if the engine has trouble starting
 
-        redline: 8200 * units.rpm,
+        redline: rev * units.rpm,
         // also change at rev_limit
 
         throttle_gamma: 2.0,
@@ -185,25 +196,27 @@ public node ls_v8_replica {
 
     wires wires()
 
-    label stroke(3.95 * units.inch)
-    label bore(4.20 * units.inch)
-    // change displacement
+    label stroke(61.5 * units.mm)
+    label bore(88 * units.mm)
+    // judd kv series v8
 
-    label rod_length(200 * units.mm) // og = 160mm
+    label rod_length(130 * units.mm) // og = 160mm
     // increasing connecting rod length increases hp
 
     label rod_mass(50 * units.g)
     // little to no effect on hp
 
     label compression_height(1.0 * units.inch)
-    // little to no effect on hp, and dont increase it past 5 or so inches
+    // changes compression ratio
 
-    label crank_mass(60 * units.lb)
+    label crank_mass(10 * units.kg)
     // little to no effect on hp
 
-    label flywheel_mass(10 * units.lb)
-    label flywheel_radius(8 * units.inch)
-    // im guessing change these settings if you want a more responsive throttle response
+    label flywheel_mass(2 * units.kg)
+    label flywheel_radius(6 * units.inch)
+    // smoler flywheel + lighter flywheel = happy revving engine
+
+    label deckheight(7.25 * units.inch)
 
 /*************************************************************************/
     // probably shouldn't mess with this
@@ -234,9 +247,9 @@ public node ls_v8_replica {
 
     // 1 8 7 2 6 5 4 3
     rod_journal rj0(angle: 0 * units.deg)
-    rod_journal rj1(angle: 270 * units.deg)
-    rod_journal rj2(angle: 90 * units.deg)
-    rod_journal rj3(angle: 180 * units.deg)
+    rod_journal rj1(angle: 180 * units.deg)
+    rod_journal rj2(angle: 180 * units.deg)
+    rod_journal rj3(angle: 0 * units.deg)
     c0
         .add_rod_journal(rj0)
         .add_rod_journal(rj1)
@@ -299,7 +312,7 @@ public node ls_v8_replica {
     // cylinder bank params
     cylinder_bank_parameters bank_params(
         bore: bore,
-        deck_height: stroke / 2 + rod_length + compression_height
+        deck_height: deckheight
     )
 
     label spacing(0 * units.inch)
@@ -323,7 +336,7 @@ public node ls_v8_replica {
             rod_journal: rj1,
             intake: intake,
             exhaust_system: exhaust0,
-            ignition_wire: wires.wire3,
+            ignition_wire: wires.wire2,
             sound_attenuation: 1.0,
             primary_length: 2 * spacing + 1 * units.cm
         )
@@ -333,7 +346,7 @@ public node ls_v8_replica {
             rod_journal: rj2,
             intake: intake,
             exhaust_system: exhaust0,
-            ignition_wire: wires.wire5,
+            ignition_wire: wires.wire3,
             sound_attenuation: 1.0,
             primary_length: 1 * spacing + 3 * units.cm
         )
@@ -343,7 +356,7 @@ public node ls_v8_replica {
             rod_journal: rj3,
             intake: intake,
             exhaust_system: exhaust0,
-            ignition_wire: wires.wire7,
+            ignition_wire: wires.wire4,
             sound_attenuation: 1.0,
             primary_length: 0 * spacing + 5 * units.cm
         )
@@ -361,7 +374,7 @@ public node ls_v8_replica {
             rod_journal: rj0,
             intake: intake,
             exhaust_system: exhaust1,
-            ignition_wire: wires.wire2,
+            ignition_wire: wires.wire5,
             sound_attenuation: 1.0,
             primary_length: 3 * spacing + 1 * units.cm
         )
@@ -371,7 +384,7 @@ public node ls_v8_replica {
             rod_journal: rj1,
             intake: intake,
             exhaust_system: exhaust1,
-            ignition_wire: wires.wire4,
+            ignition_wire: wires.wire6,
             sound_attenuation: 1.0,
             primary_length: 2 * spacing + 5 * units.cm
         )
@@ -381,7 +394,7 @@ public node ls_v8_replica {
             rod_journal: rj2,
             intake: intake,
             exhaust_system: exhaust1,
-            ignition_wire: wires.wire6,
+            ignition_wire: wires.wire7,
             sound_attenuation: 1.0,
             primary_length: 1 * spacing + 7 * units.cm
         )
@@ -452,17 +465,17 @@ public node ls_v8_replica {
 
     ignition_module ignition_module(
         timing_curve: timing_curve,
-        rev_limit: 8300 * units.rpm,
-        limiter_duration: 0.1)
+        rev_limit: rev * units.rpm,
+        limiter_duration: 0.04)
     ignition_module
             .connect_wire(wires.wire1,  0 * 90 * units.deg)
-            .connect_wire(wires.wire8,  1 * 90 * units.deg)
-            .connect_wire(wires.wire7,  2 * 90 * units.deg)
-            .connect_wire(wires.wire2,  3 * 90 * units.deg)
-            .connect_wire(wires.wire6,  4 * 90 * units.deg)
-            .connect_wire(wires.wire5,  5 * 90 * units.deg)
-            .connect_wire(wires.wire4,  6 * 90 * units.deg)
-            .connect_wire(wires.wire3,  7 * 90 * units.deg)
+            .connect_wire(wires.wire5,  1 * 90 * units.deg)
+            .connect_wire(wires.wire3,  2 * 90 * units.deg)
+            .connect_wire(wires.wire7,  3 * 90 * units.deg)
+            .connect_wire(wires.wire4,  4 * 90 * units.deg)
+            .connect_wire(wires.wire8,  5 * 90 * units.deg)
+            .connect_wire(wires.wire2,  6 * 90 * units.deg)
+            .connect_wire(wires.wire6,  7 * 90 * units.deg)
 
     engine.add_ignition_module(ignition_module)
 /*************************************************************************/
@@ -473,15 +486,15 @@ public node ls_v8_replica {
 private node corvette {
     alias output __out:
         vehicle(
-            mass: 1614 * units.kg,
+            mass: 500 * units.kg,
             drag_coefficient: 0.3,
             cross_sectional_area: (72 * units.inch) * (50 * units.inch),
-            diff_ratio: 3.42,
-            tire_radius: 16 * units.inch,
-            rolling_resistance: 200 * units.N,
-            stiffness: 50 * units.lb_ft / units.deg,
+            diff_ratio: 3.5,
+            tire_radius: 12 * units.inch,
+            rolling_resistance: 100 * units.N,
+            stiffness: 75 * units.lb_ft / units.deg,
             damping: 15.0,
-            max_flex: 5 * units.deg,
+            max_flex: 10 * units.deg,
             limit_flex: true,
             simulate_flex: true,
             max_brake_force: 10000 * units.N
@@ -491,7 +504,7 @@ private node corvette {
 private node corvette_transmission {
     alias output __out:
         transmission(
-            max_clutch_torque: 600 * units.lb_ft,
+            max_clutch_torque: 1200 * units.lb_ft,
             max_clutch_flex: 5 * units.deg,
             limit_clutch_flex: true,
             clutch_stiffness: 50 * units.lb_ft / units.deg,

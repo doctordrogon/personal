@@ -1,0 +1,598 @@
+// not my engine, is modified fro a race car
+
+import "engine_sim.mr"
+
+units units()
+constants constants()
+impulse_response_library ir_lib()
+label cycle(2 * 360 * units.deg)
+label rev(3500)
+
+public node merlin_v12_distributor {
+    input wires;
+    input timing_curve;
+    input rev_limit: rev * units.rpm;
+    input limiter_duration: 0.0 * units.sec;
+    alias output __out:
+        ignition_module(
+            timing_curve: timing_curve,
+            rev_limit: rev_limit,
+            limiter_duration: limiter_duration
+        )
+            .connect_wire(wires.wire1, (0 / 12.0) * cycle)
+            .connect_wire(wires.wire2, (8 / 12.0) * cycle)
+            .connect_wire(wires.wire3, (4 / 12.0) * cycle)
+            .connect_wire(wires.wire4, (10 / 12.0) * cycle)
+            .connect_wire(wires.wire5, (2 / 12.0) * cycle)
+            .connect_wire(wires.wire6, (6 / 12.0) * cycle)
+            .connect_wire(wires.wire7, (7 / 12.0) * cycle)
+            .connect_wire(wires.wire8, (3 / 12.0) * cycle)
+            .connect_wire(wires.wire9, (11 / 12.0) * cycle)
+            .connect_wire(wires.wire10, (5 / 12.0) * cycle)
+            .connect_wire(wires.wire11, (9 / 12.0) * cycle)
+            .connect_wire(wires.wire12, (1 / 12.0) * cycle);
+}
+
+private node wires {
+    output wire1: ignition_wire();
+    output wire2: ignition_wire();
+    output wire3: ignition_wire();
+    output wire4: ignition_wire();
+    output wire5: ignition_wire();
+    output wire6: ignition_wire();
+    output wire7: ignition_wire();
+    output wire8: ignition_wire();
+    output wire9: ignition_wire();
+    output wire10: ignition_wire();
+    output wire11: ignition_wire();
+    output wire12: ignition_wire();
+}
+
+private node add_sym_sample {
+    input angle;
+    input lift;
+    input this;
+    alias output __out: this;
+
+    this.add_sample(angle * units.deg, lift * units.thou)
+    this.add_sample(-angle * units.deg, lift * units.thou)
+}
+
+public node merlin_intake_lobe_profile {
+    alias output __out:
+        harmonic_cam_lobe(
+            duration_at_50_thou: 174 * units.deg,
+            gamma: 0.58,
+            lift: 1170 * units.thou,
+            steps: 100
+        );
+}
+
+public node merlin_exhaust_lobe_profile {
+    alias output __out:
+        harmonic_cam_lobe(
+            duration_at_50_thou: 172 * units.deg,
+            gamma: 0.58,
+            lift: 1189 * units.thou,
+            steps: 100
+        );
+}
+
+public node merlin_v12_camshaft_builder {
+    input lobe_profile: merlin_intake_lobe_profile();
+    input intake_lobe_profile: lobe_profile;
+    input exhaust_lobe_profile: lobe_profile;
+    input lobe_separation: 104.0 * units.deg;
+    input intake_lobe_center: lobe_separation;
+    input exhaust_lobe_center: lobe_separation;
+    input advance: 0.0 * units.deg;
+    input base_radius: 0.875 * units.inch;
+
+    output intake_cam_0: _intake_cam_0;
+    output intake_cam_1: _intake_cam_1;
+    output exhaust_cam_0: _exhaust_cam_0;
+    output exhaust_cam_1: _exhaust_cam_1;
+
+    camshaft_parameters params(
+        advance: advance,
+        base_radius: base_radius
+    )
+
+    camshaft _intake_cam_0(params, lobe_profile: intake_lobe_profile)
+    camshaft _intake_cam_1(params, lobe_profile: intake_lobe_profile)
+    camshaft _exhaust_cam_0(params, lobe_profile: exhaust_lobe_profile)
+    camshaft _exhaust_cam_1(params, lobe_profile: exhaust_lobe_profile)
+
+    label rot60(60 * units.deg)
+    label rot360(360 * units.deg)
+
+    _intake_cam_0
+        .add_lobe(rot360 + intake_lobe_center +  7.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center +  3.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center + 11.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center +  5.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center +  9.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center +  1.2 * rot60)
+
+    _intake_cam_1
+        .add_lobe(rot360 + intake_lobe_center +  0.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center +  8.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center +  4.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center + 10.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center +  2.2 * rot60)
+        .add_lobe(rot360 + intake_lobe_center +  6.2 * rot60)
+
+    _exhaust_cam_0
+        .add_lobe(rot360 - exhaust_lobe_center +  7.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center +  3.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center + 11.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center +  5.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center +  9.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center +  1.4 * rot60)
+
+    _exhaust_cam_1
+        .add_lobe(rot360 - exhaust_lobe_center +  0.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center +  8.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center +  4.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center + 10.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center +  2.4 * rot60)
+        .add_lobe(rot360 - exhaust_lobe_center +  6.4 * rot60)
+}
+
+private node add_flow_sample {
+    input lift;
+    input flow;
+    input this;
+    alias output __out: this;
+
+    this.add_sample(lift * units.thou, k_28inH2O(flow))
+}
+
+public node merlin_v12_camshaft {
+    alias output __out:
+        merlin_v12_camshaft_builder(
+            advance: 0 * units.deg,
+            intake_lobe_profile: merlin_intake_lobe_profile(),
+            exhaust_lobe_profile: merlin_exhaust_lobe_profile(),
+            intake_lobe_center: 83 * units.deg,
+            exhaust_lobe_center: 113 * units.deg);
+}
+
+public node merlin_v12_port {
+    input intake_camshaft;
+    input exhaust_camshaft;
+
+    input flow_attenuation: 1.17;
+    input lift_scale: 1.35;
+    input flip_display: false;
+    alias output __out: head;
+
+    function intake_flow(150 * units.thou)
+    intake_flow
+        .add_flow_sample(0 * lift_scale, 0 * flow_attenuation)
+        .add_flow_sample(50 * lift_scale, 75 * flow_attenuation)
+        .add_flow_sample(100 * lift_scale, 176 * flow_attenuation)
+        .add_flow_sample(150 * lift_scale, 200 * flow_attenuation)
+        .add_flow_sample(200 * lift_scale, 246 * flow_attenuation)
+        .add_flow_sample(250 * lift_scale, 255 * flow_attenuation)
+        .add_flow_sample(300 * lift_scale, 262 * flow_attenuation)
+        .add_flow_sample(350 * lift_scale, 270 * flow_attenuation)
+        .add_flow_sample(400 * lift_scale, 285 * flow_attenuation)
+        .add_flow_sample(450 * lift_scale, 290 * flow_attenuation)
+        .add_flow_sample(500 * lift_scale, 294 * flow_attenuation)
+        .add_flow_sample(550 * lift_scale, 300 * flow_attenuation)
+        .add_flow_sample(600 * lift_scale, 314 * flow_attenuation)
+        .add_flow_sample(650 * lift_scale, 314 * flow_attenuation)
+        .add_flow_sample(700 * lift_scale, 314 * flow_attenuation)
+
+    function exhaust_flow(150 * units.thou)
+    exhaust_flow
+        .add_flow_sample(0 * lift_scale, 0 * flow_attenuation)
+        .add_flow_sample(50 * lift_scale, 75 * flow_attenuation)
+        .add_flow_sample(100 * lift_scale, 150 * flow_attenuation)
+        .add_flow_sample(150 * lift_scale, 160 * flow_attenuation)
+        .add_flow_sample(200 * lift_scale, 162 * flow_attenuation)
+        .add_flow_sample(250 * lift_scale, 170 * flow_attenuation)
+        .add_flow_sample(300 * lift_scale, 176 * flow_attenuation)
+        .add_flow_sample(350 * lift_scale, 180 * flow_attenuation)
+        .add_flow_sample(400 * lift_scale, 188 * flow_attenuation)
+        .add_flow_sample(450 * lift_scale, 191 * flow_attenuation)
+        .add_flow_sample(500 * lift_scale, 207 * flow_attenuation)
+        .add_flow_sample(550 * lift_scale, 214 * flow_attenuation)
+        .add_flow_sample(600 * lift_scale, 228 * flow_attenuation)
+        .add_flow_sample(650 * lift_scale, 228 * flow_attenuation)
+        .add_flow_sample(700 * lift_scale, 228 * flow_attenuation)
+
+    generic_cylinder_head head(
+        chamber_volume: 80.0 * units.cc,
+        intake_runner_volume: 105.0 * units.cc,
+        intake_runner_cross_section_area: 15.75 * units.cm2,
+	exhaust_runner_volume: 98.0 * units.cc,
+	exhaust_runner_cross_section_area: 15.50 * units.cm2,
+
+        intake_port_flow: intake_flow,
+        exhaust_port_flow: exhaust_flow,
+        valvetrain: standard_valvetrain(
+            intake_camshaft: intake_camshaft,
+            exhaust_camshaft: exhaust_camshaft
+        ),
+        flip_display: flip_display
+    )
+}
+
+public node merlin_v12_intake {
+    input plenum_volume: 30.0 * units.L;
+    input plenum_cross_section_area: 10.0 * units.cm2;
+    input carburetor_cfm: 1750.0;
+    input idle_flow_rate_cfm: 0.1;
+    input idle_throttle_plate_position: 0.9926;
+    input throttle_gamma: 1.0;
+    input runner_flow_rate_cfm: 600.0;
+    input runner_length: 12.0 * units.inch;
+    input velocity_decay: 0.15;
+    input molecular_afr: (25.0 / 2);
+
+    alias output __out: intake;
+
+    intake intake(
+        plenum_volume: plenum_volume,
+        plenum_cross_section_area: plenum_cross_section_area,
+        intake_flow_rate: k_carb(carburetor_cfm),
+        idle_flow_rate: k_carb(idle_flow_rate_cfm),
+        idle_throttle_plate_position: idle_throttle_plate_position,
+        throttle_gamma: throttle_gamma,
+        runner_flow_rate: k_carb(runner_flow_rate_cfm),
+        runner_length: runner_length,
+        velocity_decay: velocity_decay,
+        molecular_afr: molecular_afr
+    )
+}
+
+private node turbulence_to_flame_speed_ratio {
+    alias output __out:
+        function(5.0)
+            .add_sample(0.0, 3.0 * 3.0)
+            .add_sample(5.0, 3.0 * 1.5 * 5.0)
+            .add_sample(10.0, 3.0 * 1.5 * 10.0)
+            .add_sample(15.0, 3.0 * 1.5 * 12.0)
+            .add_sample(20.0, 3.0 * 1.5 * 15.0)
+            .add_sample(25.0, 3.0 * 1.5 * 18.0)
+            .add_sample(30.0, 3.0 * 1.5 * 21.0)
+            .add_sample(35.0, 3.0 * 1.5 * 25.0)
+            .add_sample(40.0, 3.0 * 1.5 * 30.0)
+            .add_sample(45.0, 3.0 * 1.5 * 34.0);
+}
+
+public node merlin_v12 {
+    alias output __out: engine;
+
+    engine engine(
+        name: "Spitfire IX Merlin (RM 8SM)",
+        starter_torque: 1000 * units.lb_ft,
+        starter_speed: 500 * units.rpm,
+        redline: rev * units.rpm,
+        fuel: fuel(
+            max_turbulence_effect: 2.2,
+            max_dilution_effect: 4.0,
+            burning_efficiency_randomness: 0.2,
+            max_burning_efficiency: 0.9,
+            turbulence_to_flame_speed_ratio: turbulence_to_flame_speed_ratio()
+        ),
+        throttle_gamma: 4.0,
+        hf_gain: 0.01,
+        noise: 1.0,
+        jitter: 0.5,
+        simulation_frequency: 8000,
+
+        heat_transfer_coefficient: 200.0,
+        block_temperature: celcius(90)
+    )
+
+    wires wires()
+
+    label stroke(6.000 * units.inch)
+    label bore(5.4 * units.inch)
+    label rod_length(12.992 * units.inch)
+    label rod_mass(12.230 * units.lb)
+    label compression_height(1.920 * units.inch)
+    label crank_mass(143.800 * units.lb)
+    label flywheel_mass(259.000 * units.kg)
+    label flywheel_radius(50.000 * units.inch)
+
+    label crank_moment(
+        disk_moment_of_inertia(mass: crank_mass, radius: stroke / 2)
+    )
+
+    label flywheel_moment(
+        disk_moment_of_inertia(mass: flywheel_mass, radius: flywheel_radius)
+    )
+
+    label other_moment( // Moment from cams, pulleys, etc [estimated]
+        disk_moment_of_inertia(mass: 12 * units.kg, radius: 35.0 * units.cm)
+    )
+
+    crankshaft c0(
+        throw: stroke / 2,
+        flywheel_mass: flywheel_mass,
+        mass: crank_mass,
+        friction_torque: 5.0 * units.lb_ft,
+        moment_of_inertia: crank_moment,
+        position_x: 0.003 * units.inch,
+        position_y: 0.006 * units.inch,
+        tdc: constants.pi / 4
+    )
+
+    rod_journal rj0(angle: 1.0000 * constants.pi / 3)
+    rod_journal rj1(angle: 3.0000 * constants.pi / 3)
+    rod_journal rj2(angle: 5.0000 * constants.pi / 3)
+    rod_journal rj3(angle: 5.0000 * constants.pi / 3)
+    rod_journal rj4(angle: 3.0000 * constants.pi / 3)
+    rod_journal rj5(angle: 1.0000 * constants.pi / 3)
+
+    c0
+        .add_rod_journal(rj0)
+        .add_rod_journal(rj1)
+        .add_rod_journal(rj2)
+        .add_rod_journal(rj3)
+        .add_rod_journal(rj4)
+        .add_rod_journal(rj5)
+
+    piston_parameters piston_params(
+        mass: 10.940 * units.lb,
+        blowby: k_28inH2O(0.1),
+        compression_height: compression_height,
+        wrist_pin_position: 0.0,
+        displacement: 10.0 * units.cc
+    )
+
+    connecting_rod_parameters cr_params(
+        mass: rod_mass,
+        moment_of_inertia: rod_moment_of_inertia(mass: rod_mass, length: rod_length),
+        center_of_mass: 0.0,
+        length: rod_length
+    )
+
+    cylinder_bank_parameters bank_params(
+        bore: bore,
+        deck_height: stroke / 2 + rod_length + compression_height + 0.78 * units.inch
+    )
+
+    merlin_v12_intake intake(
+        plenum_volume: 26.0 * units.L,
+        plenum_cross_section_area: 25.0 * units.cm2,
+        carburetor_cfm: 1280.0,
+        runner_flow_rate_cfm: 695.0,
+        runner_length: 15.0 * units.inch,
+        idle_flow_rate_cfm: 0.05,
+        molecular_afr: (23.5 / 2.0),
+        idle_throttle_plate_position: 0.9915, // changed from .9928
+        throttle_gamma: 1.0,
+        velocity_decay: 0.35
+    )
+
+    exhaust_system_parameters es_params(
+        outlet_flow_rate: k_carb(720.0),
+        primary_tube_length: 1.0 * units.inch,
+        primary_flow_rate: k_carb(120.0),
+        collector_cross_section_area: circle_area(3.25 * units.inch),
+        velocity_decay: 0.25, //0.5
+        volume: 20.0 * units.L,
+        audio_volume: 1.0,
+        backflow_atmospheric_mixing: 0.025,
+        length: 60.0 * units.inch
+    )
+
+    
+    exhaust_system exhaust0(es_params, audio_volume: 1.75, impulse_response: ir_lib.default_0)
+    exhaust_system exhaust1(es_params, audio_volume: 1.75, impulse_response: ir_lib.default_0)
+
+    cylinder_bank b0(bank_params, angle: -30 * units.deg)
+    b0
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.15)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj0,
+            primary_length: 1 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire7
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.11)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj1,
+            primary_length: 3 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire8
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.19)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj2,
+            primary_length: 6 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire9
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.14)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj3,
+            primary_length: 8 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire10
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.17)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj4,
+            primary_length: 10 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire11
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.12)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj5,
+            primary_length: 12 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust0,
+            ignition_wire: wires.wire12
+        )
+
+    cylinder_bank b1(bank_params, angle: 30.0 * units.deg)
+    b1
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.17)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj0,
+            primary_length: 1 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire1
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.11)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj1,
+            primary_length: 3 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire2
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.12)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj2,
+            primary_length: 6 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire3
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.17)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj3,
+            primary_length: 8 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire4
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.14)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj4,
+            primary_length: 10 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire5
+        )
+        .add_cylinder(
+            piston: piston(piston_params, blowby: k_28inH2O(0.15)),
+            connecting_rod: connecting_rod(cr_params),
+            rod_journal: rj5,
+            primary_length: 12 * units.inch,
+            intake: intake,
+            exhaust_system: exhaust1,
+            ignition_wire: wires.wire6
+        )
+
+    engine
+        .add_cylinder_bank(b0)
+        .add_cylinder_bank(b1)
+
+    engine.add_crankshaft(c0)
+
+    merlin_v12_camshaft camshaft()
+
+    b0.set_cylinder_head (
+        merlin_v12_port(
+            intake_camshaft: camshaft.intake_cam_0,
+            exhaust_camshaft: camshaft.exhaust_cam_0,
+            flip_display: false
+        )
+    )
+    b1.set_cylinder_head (
+        merlin_v12_port(
+            intake_camshaft: camshaft.intake_cam_1,
+            exhaust_camshaft: camshaft.exhaust_cam_1,
+            flip_display: true
+        )
+    )
+
+    function timing_curve(1000 * units.rpm)
+    timing_curve
+        .add_sample(0000 * units.rpm, 10 * units.deg)
+        .add_sample(1000 * units.rpm, 15 * units.deg)
+        .add_sample(2000 * units.rpm, 18 * units.deg)
+        .add_sample(3000 * units.rpm, 22 * units.deg)
+        .add_sample(3500 * units.rpm, 22 * units.deg)
+        .add_sample(4500 * units.rpm, -5 * units.deg)
+
+    engine.add_ignition_module(
+        merlin_v12_distributor(
+            wires: wires,
+            timing_curve: timing_curve,
+            rev_limit: rev * units.rpm,
+            limiter_duration: 0.0
+        )
+    )
+}
+
+// private node spitfire_chassis {
+//     alias output __out:
+//         vehicle(
+//             mass: 20 * units.kg,
+//             drag_coefficient: 0.18,
+//             cross_sectional_area: (45 * units.inch) * (12 * units.inch),
+//             diff_ratio: 1.0,
+//             tire_radius: 17 * units.inch,
+//             rolling_resistance: 1 * units.N
+//         );
+// }
+
+private node aventador {
+    alias output __out:
+        vehicle(
+            mass: 3417 * units.lb,
+            drag_coefficient: 0.33,
+            cross_sectional_area: (79.9 * units.inch) * (44.7 * units.inch),
+            diff_ratio: 1.00,
+            tire_radius: 12 * units.inch,
+            rolling_resistance: 400 * units.N,
+            max_brake_force: 7500 * units.N
+        );
+}
+
+// private node spitfire_gearing {
+//     alias output __out:
+//         transmission(
+//             max_clutch_torque: 10000 * units.N
+//         )
+//         .add_gear(0.42);
+// }
+
+private node custom_transmission_type_4 {
+    alias output __out:
+        transmission(
+            max_clutch_torque: 3000 * units.lb_ft
+        )
+        .add_gear(2.50)
+        .add_gear(1.75)
+        .add_gear(1.40)
+        .add_gear(1.10)
+        .add_gear(0.90)
+        .add_gear(0.80)
+        .add_gear(0.75);
+}
+
+public node main {
+    set_engine(merlin_v12())
+    set_vehicle(aventador())
+    set_transmission(custom_transmission_type_4())
+}
+
+main()
