@@ -1,0 +1,18 @@
+private node custom_transmission_type_3 {
+    alias output __out:
+        transmission(
+            max_clutch_torque: 1000 * units.lb_ft,
+            max_clutch_flex: 50 * units.deg,
+            limit_clutch_flex: true,
+            clutch_stiffness: 5.0 * units.Nm / units.deg,
+            clutch_damping: 0.09, // clutch settings for most "alive" and engaging feeling for shifts (PLEASE use the clutch properly during shifts if you want the best experience)
+            simulate_flex: true
+            // limit_clutch_flex: true
+        )
+        .add_gear(3.000)
+        .add_gear(2.000)
+        .add_gear(1.500)
+        .add_gear(1.200)
+        .add_gear(0.900)
+        .add_gear(0.700);
+}

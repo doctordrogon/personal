@@ -1,14 +1,19 @@
 // original base build bmw m88 by _dan
 // modifications, tune and adjustment by me :)
 
-// spark timing for bank 1 is a lil off
+// engine no longer sounds like popcorn after adjusting the compression, chamber vol, and timing curve.
+// I'm almost solid the timing curve is good, but everything else can be further optimized.
 
 import "engine_sim.mr"
 
 units units()
 constants constants()
 impulse_response_library ir_lib()
+
+// for the actual beamng car, the engine will only rev to 9000; otherwise, you can rev the fuck out of this engine
 label rev(9000)
+//label rev(12000)
+
 label rot30(60 * units.deg)
 label rot60(60 * units.deg)
 label rot90(90 * units.deg)
@@ -161,7 +166,7 @@ private node add_flow_sample {
 public node bmw_m88_head {
     input intake_camshaft;
     input exhaust_camshaft;
-    input chamber_volume: 39.8 * units.cc;
+    input chamber_volume: 25.0 * units.cc;
     input flip_display: false;
     
     input flow_attenuation: 1.0;
@@ -216,38 +221,38 @@ public node bmw_m88_head {
     )
 }
 
-public node bmw_m88_itb { // This engine, even detuned, is far over spec (Making nearly 100hp and 150lb-ft more than necessary), so I reduced the ITB sizes to make it more manageable and realistic.
-    input throttlebody_cfm: 500;
-    input idle_flow_rate_cfm: 0.0001;
-    input idle_throttle_plate_position: 0.9995;
-    input throttle_gamma: 8.2;
+// public node bmw_m88_itb { // This engine, even detuned, is far over spec (Making nearly 100hp and 150lb-ft more than necessary), so I reduced the ITB sizes to make it more manageable and realistic.
+//     input throttlebody_cfm: 500;
+//     input idle_flow_rate_cfm: 0.0001;
+//     input idle_throttle_plate_position: 0.9995;
+//     input throttle_gamma: 8.2;
 
-    alias output __out: intake;
+//     alias output __out: intake;
 
-    intake intake(
-        plenum_volume: (circle_area(1.5 * units.inch) * 9 * units.inch) / 4,
-        plenum_cross_section_area: circle_area(1.5 * units.inch),
-        intake_flow_rate: k_carb(throttlebody_cfm),
-        idle_flow_rate: k_carb(idle_flow_rate_cfm),
-        idle_throttle_plate_position: idle_throttle_plate_position,
-        throttle_gamma: throttle_gamma,
-        runner_flow_rate: k_carb(300.0),
-        runner_length: 4.5 * units.inch,
-        velocity_decay: 0.1
-    )
-}
+//     intake intake(
+//         plenum_volume: (circle_area(1.5 * units.inch) * 9 * units.inch) / 4,
+//         plenum_cross_section_area: circle_area(1.5 * units.inch),
+//         intake_flow_rate: k_carb(throttlebody_cfm),
+//         idle_flow_rate: k_carb(idle_flow_rate_cfm),
+//         idle_throttle_plate_position: idle_throttle_plate_position,
+//         throttle_gamma: throttle_gamma,
+//         runner_flow_rate: k_carb(300.0),
+//         runner_length: 4.5 * units.inch,
+//         velocity_decay: 0.1
+//     )
+// }
 
 public node bmw_m88_engine {
     alias output __out: engine;
 
     engine engine(
         name: "BMW M1 M88/1 rev. f12",
-        starter_torque: 250 * units.lb_ft,
-        starter_speed: 1200 * units.rpm,
+        starter_torque:150 * units.lb_ft,
+        starter_speed: 750 * units.rpm,
         redline: rev * units.rpm,
         fuel: fuel(max_burning_efficiency: 1.30),
         throttle_gamma: 1.0,
-        simulation_frequency: 7000, // itbs significantly reduce frames
+        simulation_frequency: 10000,
         convolution: 1.000,
         hf_gain: 0.02,
         noise: 1.000,
@@ -330,26 +335,50 @@ public node bmw_m88_engine {
         deck_height: deck_height
     )
 
-    bmw_m88_itb itb1()
-    bmw_m88_itb itb2()
-    bmw_m88_itb itb3()
-    bmw_m88_itb itb4()
-    bmw_m88_itb itb5()
-    bmw_m88_itb itb6()
-    bmw_m88_itb itb7()
-    bmw_m88_itb itb8()
-    bmw_m88_itb itb9()
-    bmw_m88_itb itb10()
-    bmw_m88_itb itb11()
-    bmw_m88_itb itb12()
-    // switch to 2 intake systems
+    // bmw_m88_itb itb1()
+    // bmw_m88_itb itb2()
+    // bmw_m88_itb itb3()
+    // bmw_m88_itb itb4()
+    // bmw_m88_itb itb5()
+    // bmw_m88_itb itb6()
+    // bmw_m88_itb itb7()
+    // bmw_m88_itb itb8()
+    // bmw_m88_itb itb9()
+    // bmw_m88_itb itb10()
+    // bmw_m88_itb itb11()
+    // bmw_m88_itb itb12()
+    
+    // for better accuracy to the original 917/30, I will opt for 2 throttle bodies
+        intake intakeL(
+        plenum_volume: 2.70 * units.L,
+        plenum_cross_section_area: 100.0 * units.cm2,
+        intake_flow_rate: k_carb(1400.0),
+        runner_flow_rate: k_carb(700.0),
+        runner_length: 6.75 * units.inch,
+        idle_flow_rate: k_carb(0.0),
+        idle_throttle_plate_position: 0.9990,
+        // idle increase
+        velocity_decay: 0.5
+    )
+
+    intake intakeR(
+        plenum_volume: 2.70 * units.L,
+        plenum_cross_section_area: 100.0 * units.cm2,
+        intake_flow_rate: k_carb(1400.0),
+        runner_flow_rate: k_carb(700.0),
+        runner_length: 6.75 * units.inch,
+        idle_flow_rate: k_carb(0.0),
+        idle_throttle_plate_position: 0.9990,
+        // idle increase
+        velocity_decay: 0.5
+    )
+    
     
     label exhaust_radius((3.0 * units.inch)/2)
-
     exhaust_system_parameters es_params(
-        outlet_flow_rate: k_carb(300.0),
+        outlet_flow_rate: k_carb(600.0),
         primary_tube_length: 3.0 * units.inch,
-        primary_flow_rate: k_carb(200.0),
+        primary_flow_rate: k_carb(300.0),
         velocity_decay: 2.0, //0.5
         collector_cross_section_area: circle_area(exhaust_radius),
         length: 2500 * units.mm,
@@ -367,7 +396,7 @@ public node bmw_m88_engine {
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj1,
             ignition_wire: wires.wire1,
-            intake: itb1,
+            intake: intakeL,
             exhaust_system: exhaust,
             primary_length: 6.0 * units.cm,
             sound_attenuation: 1.3
@@ -377,7 +406,7 @@ public node bmw_m88_engine {
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj2,
             ignition_wire: wires.wire2,
-            intake: itb2,
+            intake: intakeL,
             exhaust_system: exhaust,
             primary_length: 4.0 * units.cm,
             sound_attenuation: 0.94
@@ -387,7 +416,7 @@ public node bmw_m88_engine {
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj3,
             ignition_wire: wires.wire3,
-            intake: itb3,
+            intake: intakeL,
             exhaust_system: exhaust,
             primary_length: 2.0 * units.cm,
             sound_attenuation: 0.815
@@ -397,7 +426,7 @@ public node bmw_m88_engine {
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj4,
             ignition_wire: wires.wire4,
-            intake: itb4,
+            intake: intakeL,
             exhaust_system: exhaust,
             primary_length: 0.0 * units.cm,
             sound_attenuation: 0.67
@@ -407,7 +436,7 @@ public node bmw_m88_engine {
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj5,
             ignition_wire: wires.wire5,
-            intake: itb5,
+            intake: intakeL,
             exhaust_system: exhaust,
             primary_length: 1.0 * units.cm,
             sound_attenuation: 0.77
@@ -417,7 +446,7 @@ public node bmw_m88_engine {
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj6,
             ignition_wire: wires.wire6,
-            intake: itb6,
+            intake: intakeL,
             exhaust_system: exhaust,
             primary_length: 3.0 * units.cm,
             sound_attenuation: 0.86
@@ -429,7 +458,7 @@ b1
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj1,
             ignition_wire: wires.wire7,
-            intake: itb7,
+            intake: intakeR,
             exhaust_system: exhaust2,
             primary_length: 6.0 * units.cm,
             sound_attenuation: 1.3
@@ -439,7 +468,7 @@ b1
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj2,
             ignition_wire: wires.wire8,
-            intake: itb8,
+            intake: intakeR,
             exhaust_system: exhaust2,
             primary_length: 4.0 * units.cm,
             sound_attenuation: 0.94
@@ -449,7 +478,7 @@ b1
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj3,
             ignition_wire: wires.wire9,
-            intake: itb9,
+            intake: intakeR,
             exhaust_system: exhaust2,
             primary_length: 2.0 * units.cm,
             sound_attenuation: 0.815
@@ -459,7 +488,7 @@ b1
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj4,
             ignition_wire: wires.wire10,
-            intake: itb10,
+            intake: intakeR,
             exhaust_system: exhaust2,
             primary_length: 0.0 * units.cm,
             sound_attenuation: 0.67
@@ -469,7 +498,7 @@ b1
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj5,
             ignition_wire: wires.wire11,
-            intake: itb11,
+            intake: intakeR,
             exhaust_system: exhaust2,
             primary_length: 1.0 * units.cm,
             sound_attenuation: 0.77
@@ -479,7 +508,7 @@ b1
             connecting_rod: connecting_rod(cr_params),
             rod_journal: rj6,
             ignition_wire: wires.wire12,
-            intake: itb12,
+            intake: intakeR,
             exhaust_system: exhaust2,
             primary_length: 3.0 * units.cm,
             sound_attenuation: 0.86
@@ -515,16 +544,41 @@ b1
     // what in the kentucky fried fuck was the previous timing curve
     // also, this is the spark advance, it gradually increases with rpm. If you hear popping, lower the advance. I think raising it gives more hp, but not much
     timing_curve
-        .add_sample(0000 * units.rpm, 25 * units.deg)
-        .add_sample(1000 * units.rpm, 30 * units.deg)
-        .add_sample(2000 * units.rpm, 35 * units.deg)
-        .add_sample(3000 * units.rpm, 40 * units.deg)
-        .add_sample(4000 * units.rpm, 46 * units.deg)
-        .add_sample(5000 * units.rpm, 46 * units.deg)
-        .add_sample(6000 * units.rpm, 47 * units.deg)
-        .add_sample(7000 * units.rpm, 48 * units.deg)
-        .add_sample(8000 * units.rpm, 51 * units.deg)
-        .add_sample(9000 * units.rpm, 52 * units.deg)
+        // .add_sample(0000 * units.rpm, 22 * units.deg)
+        // .add_sample(1000 * units.rpm, 34 * units.deg)
+        // .add_sample(2000 * units.rpm, 35 * units.deg)
+        // .add_sample(3000 * units.rpm, 36 * units.deg)
+        // .add_sample(4000 * units.rpm, 37 * units.deg)
+        // .add_sample(5000 * units.rpm, 38 * units.deg)
+        // .add_sample(6000 * units.rpm, 39 * units.deg)
+        // .add_sample(7000 * units.rpm, 40 * units.deg)
+        // .add_sample(8000 * units.rpm, 41 * units.deg)
+        // .add_sample(9000 * units.rpm, 42 * units.deg)
+        // my timing attempt
+
+        .add_sample(0000 * units.rpm, 16 * units.deg)
+        .add_sample(1000 * units.rpm, 20 * units.deg)
+        .add_sample(2000 * units.rpm, 22 * units.deg)
+        .add_sample(3000 * units.rpm, 23 * units.deg)
+        .add_sample(4000 * units.rpm, 26 * units.deg)
+        .add_sample(5000 * units.rpm, 27 * units.deg)
+        .add_sample(6000 * units.rpm, 28 * units.deg)
+        .add_sample(7000 * units.rpm, 29 * units.deg)
+        .add_sample(8000 * units.rpm, 30 * units.deg)
+        .add_sample(9000 * units.rpm, 31 * units.deg)
+        // modified from honda k24 file
+
+        // .add_sample(0000 * units.rpm, 22 * units.deg)
+        // .add_sample(1000 * units.rpm, 34 * units.deg)
+        // .add_sample(2000 * units.rpm, 55 * units.deg)
+        // .add_sample(3000 * units.rpm, 60 * units.deg)
+        // .add_sample(4000 * units.rpm, 70 * units.deg)
+        // .add_sample(5000 * units.rpm, 80 * units.deg)
+        // .add_sample(6000 * units.rpm, 90 * units.deg)
+        // .add_sample(7000 * units.rpm, 94 * units.deg)
+        // .add_sample(8000 * units.rpm, 98 * units.deg)
+        // .add_sample(9000 * units.rpm, 100 * units.deg)
+        // og timing
 
     engine.add_ignition_module(
         bmw_m88_distributor(
@@ -551,29 +605,30 @@ private node bmw_m1_procar { // most specs from https://www.ultimatecarpage.com/
         );
 }
 
-private node zf_5speed { // again, self-tuned to match the sound and shifts from onboard videos
+private node custom_transmission_type_4 {
     alias output __out:
         transmission(
             max_clutch_torque: 1000 * units.lb_ft,
-            simulate_flex: true,
-            clutch_stiffness: 5.0 * units.Nm / units.deg,
+            max_clutch_flex: 50 * units.deg,
             limit_clutch_flex: true,
-            max_clutch_flex: 20.0 * units.deg,
-            clutch_damping: 0.09 // clutch settings for most "alive" and engaging feeling for shifts (PLEASE use the clutch properly during shifts if you want the best experience)
+            clutch_stiffness: 5.0 * units.Nm / units.deg,
+            clutch_damping: 0.09, // clutch settings for most "alive" and engaging feeling for shifts (PLEASE use the clutch properly during shifts if you want the best experience)
+            simulate_flex: true
+            // limit_clutch_flex: true
         )
-    .add_gear(3.55)
-    .add_gear(2.20)
-    .add_gear(1.58)
-    .add_gear(1.19)
-    .add_gear(1.03)
-    .add_gear(0.89);
+        .add_gear(3.000)
+        .add_gear(2.000)
+        .add_gear(1.500)
+        .add_gear(1.200)
+        .add_gear(1.000)
+        .add_gear(0.850);
 }
 
 
 public node main {
     set_engine(bmw_m88_engine())
     set_vehicle(bmw_m1_procar())
-    set_transmission(zf_5speed())
+    set_transmission(custom_transmission_type_4())
 }
 
 main()
